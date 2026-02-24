@@ -151,19 +151,20 @@
             <!-- Only show grid if events exist -->
             <div th:unless="${#lists.isEmpty(events)}" class="event-grid" id="eventsGrid">
                 <div th:each="event, stat : ${events}" th:data-category="${event.category}"
-                    class="event-item animate-in" th:style="'animation-delay: ' + (${stat.index} * 0.05) + 's;'">
+                    class="event-item animate-in"
+                    th:style="'animation-delay: ' + (${stat.index < 12 ? stat.index * 0.05 : 0.55}) + 's;'">
                     <!-- Event Card -->
                     <div class="event-card" onclick="openDetailModal(this)" th:data-id="${event.id}" role="button"
                         tabindex="0" th:aria-label="'View details for ' + ${event.title}" th:data-title="${event.title}"
                         th:data-desc="${event.description}"
-                        th:data-date="${#temporals.format(event.dateTime, 'EEE, MMM dd, yyyy')}"
-                        th:data-enddate="${event.endDateTime != null ? #temporals.format(event.endDateTime, 'EEE, MMM dd, yyyy') : ''}"
+                        th:data-date="${#temporals.format(event.dateTime, 'EEE, MMM dd')}"
+                        th:data-enddate="${event.endDateTime != null ? #temporals.format(event.endDateTime, 'EEE, MMM dd') : ''}"
                         th:data-time="${#temporals.format(event.dateTime, 'h:mm a')}"
                         th:data-endtime="${event.endDateTime != null ? #temporals.format(event.endDateTime, 'h:mm a') : ''}"
                         th:data-venue="${event.venue}" th:data-cat="${event.category}" th:data-img="${event.imageUrl}"
                         th:data-link="${event.registrationLink}">
 
-                        <div class="card-img-wrapper">
+                        <div class="card-img-wrapper position-relative">
                             <img th:if="${event.imageUrl != null and !#strings.isEmpty(event.imageUrl)}"
                                 th:src="@{${event.imageUrl}}" class="card-img" loading="lazy"
                                 onerror="this.onerror=null; this.src='/images/logo.png'; this.classList.add('opacity-25');">
@@ -171,29 +172,30 @@
                                 class="d-flex align-items-center justify-content-center h-100 bg-dark text-muted fs-1 opacity-25">
                                 <i class="bi bi-image"></i>
                             </div>
-                            <div class="position-absolute top-0 end-0 p-3">
-                                <span class="badge-pill glass event-status"
-                                    th:data-status="${event.dateTime.isAfter(now)} ? 'Upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'Ongoing' : 'Past')"
-                                    th:classappend="${event.dateTime.isAfter(now)} ? 'text-green' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'text-blue' : 'text-muted')"
+
+                            <!-- Floating Badges -->
+                            <div class="position-absolute top-0 start-0 p-3 z-1">
+                                <span class="badge-pill shadow-sm"
+                                    th:classappend="${event.category == 'Technical'} ? 'badge-tech' : (${event.category == 'Cultural'} ? 'badge-cultural' : (${event.category == 'Sports'} ? 'badge-sports' : (${event.category == 'Workshop'} ? 'badge-workshop' : (${event.category == 'Seminar'} ? 'badge-seminar' : 'glass'))))"
+                                    th:text="${event.category}">Category</span>
+                            </div>
+                            <div class="position-absolute top-0 end-0 p-3 z-1">
+                                <span class="badge-pill border-0 shadow-sm"
+                                    th:styleappend="${event.dateTime.isAfter(now)} ? 'background: rgba(16, 185, 129, 0.85); color: #fff; backdrop-filter: blur(4px);' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'background: rgba(6, 182, 212, 0.85); color: #fff; backdrop-filter: blur(4px);' : 'background: rgba(100, 116, 139, 0.85); color: #fff; backdrop-filter: blur(4px);')"
                                     th:text="${event.dateTime.isAfter(now)} ? 'Upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'Ongoing' : 'Past')">Status</span>
                             </div>
                         </div>
 
-                        <div class="card-content">
-                            <div class="mb-2">
-                                <span class="badge-pill"
-                                    th:classappend="${event.category == 'Technical'} ? 'badge-tech' : (${event.category == 'Cultural'} ? 'badge-cultural' : (${event.category == 'Sports'} ? 'badge-sports' : (${event.category == 'Workshop'} ? 'badge-workshop' : (${event.category == 'Seminar'} ? 'badge-seminar' : 'glass'))))"
-                                    th:text="${event.category}">Category</span>
-                            </div>
+                        <div class="card-content d-flex flex-column h-100">
                             <h5 class="event-title mb-2" th:text="${event.title}">Title</h5>
                             <div class="event-meta-info text-muted small mb-3">
                                 <div class="d-flex align-items-center gap-2 mb-1">
                                     <i class="bi bi-calendar3"></i>
                                     <span class="text-white fw-medium"
-                                        th:text="${#temporals.format(event.dateTime, 'MMM dd, yyyy')}">Date</span>
+                                        th:text="${#temporals.format(event.dateTime, 'MMM dd')}">Date</span>
                                     <span
                                         th:if="${event.endDateTime != null && !event.endDateTime.toLocalDate().isEqual(event.dateTime.toLocalDate())}"
-                                        th:text="' - ' + ${#temporals.format(event.endDateTime, 'MMM dd, yyyy')}">to
+                                        th:text="' - ' + ${#temporals.format(event.endDateTime, 'MMM dd')}">to
                                         Date</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
@@ -202,16 +204,16 @@
                                 </div>
                             </div>
 
-                            <!-- Action Area (Visual Only, entire card is clickable) -->
-                            <div class="mt-auto">
-                                <button class="btn-action w-100 justify-content-center">
-                                    View Details
+                            <!-- Action Area -->
+                            <div class="mt-auto pt-2">
+                                <button class="btn-action w-100 justify-content-center d-flex align-items-center gap-2">
+                                    <span>View Details</span>
+                                    <i class="bi bi-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </main>
     </div>
 
@@ -230,21 +232,30 @@
                 <div class="modal-body p-0 h-100">
                     <div class="row g-0 h-100">
                         <!-- Left Column: Poster Image -->
-                        <div
-                            class="col-lg-5 bg-black d-flex align-items-center justify-content-center h-100 position-relative">
+                        <div class="col-lg-5 bg-black position-relative overflow-hidden">
                             <!-- Loading Placeholder or Fallback icon -->
-                            <i class="bi bi-image text-muted opacity-25 fs-1 position-absolute"></i>
-                            <img id="detailImg" src="" class="img-fluid position-relative z-1"
-                                style="max-height: 100%; width: 100%; object-fit: contain; display: none;"
-                                onerror="this.onerror=null; this.src='/images/logo.png'; this.classList.add('opacity-10');">
+                            <div
+                                class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center z-0">
+                                <i class="bi bi-image text-muted opacity-25 fs-1"></i>
+                            </div>
+                            <img id="detailImg" src="" class="position-relative w-100 h-100 z-1"
+                                style="object-fit: cover; display: none;"
+                                onerror="this.onerror=null; this.src='/images/logo.png'; this.style.objectFit='contain'; this.classList.add('opacity-50', 'p-5');">
+
+                            <!-- Inner Shadow Overlay -->
+                            <div class="position-absolute w-100 h-100 top-0 start-0 z-2"
+                                style="box-shadow: inset -24px 0 48px -12px rgba(10, 10, 15, 0.8); pointer-events: none;">
+                            </div>
                         </div>
 
                         <!-- Right Column: Details -->
-                        <div class="col-lg-7 h-100 overflow-y-auto custom-scrollbar">
-                            <div class="p-4 h-100 d-flex flex-column">
-                                <div class="pe-5 flex-shrink-0">
-                                    <span id="detailCat" class="badge-pill mb-2">Category</span>
-                                    <h2 id="detailTitle" class="fw-bold mb-3 l-spacing-tight">Event Title</h2>
+                        <div class="col-lg-7 h-100 overflow-y-auto custom-scrollbar" style="background: var(--bg-1);">
+                            <div class="p-5 d-flex flex-column h-100">
+                                <div class="flex-shrink-0 mb-4">
+                                    <span id="detailCat" class="badge-pill mb-3 d-inline-block">Category</span>
+                                    <h2 id="detailTitle"
+                                        style="font-size: 24px; font-weight: 700; color: var(--text-primary); line-height: 1.3;">
+                                        Event Title</h2>
                                 </div>
 
                                 <!-- Meta Grid -->
@@ -288,29 +299,33 @@
                                 </div>
 
                                 <!-- About Section -->
-                                <div class="mb-4">
-                                    <h5 class="fw-bold mb-2 small text-uppercase text-muted">About this Event</h5>
+                                <div class="mb-4 flex-grow-1">
+                                    <h5 class="fw-bold mb-2 small text-uppercase"
+                                        style="letter-spacing: 0.1em; color: var(--text-muted);">About this Event</h5>
                                     <p id="detailDesc" class="text-muted"
                                         style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;">
                                         Description...</p>
                                 </div>
 
                                 <!-- Action Footer -->
-                                <div class="d-grid gap-2 d-sm-flex align-items-center mt-auto pt-3 border-top border-secondary flex-shrink-0"
-                                    style="border-color: var(--border-glass) !important;">
-                                    <a id="detailLink" href="#" target="_blank"
-                                        class="btn btn-action px-4 d-none flex-grow-1">
-                                        Register Now <i class="bi bi-arrow-right-short ms-2"></i>
-                                    </a>
-                                    <button id="calendarBtn" class="btn glass px-3 flex-grow-1">
-                                        <i class="bi bi-calendar-plus me-2"></i> Add to Calendar
-                                    </button>
-                                </div>
+                                <div class="d-flex flex-column gap-3 mt-auto pt-4 border-top flex-shrink-0"
+                                    style="border-color: rgba(255, 255, 255, 0.08) !important;">
+                                    <div class="d-flex gap-2">
+                                        <button id="calendarBtn" class="btn btn-calendar flex-grow-0 px-4">
+                                            <i class="bi bi-calendar-plus me-2"></i> Add to Calendar
+                                        </button>
+                                        <a id="detailLink" href="#" target="_blank"
+                                            class="btn btn-action flex-grow-1 d-none text-center">
+                                            Register Now <i class="bi bi-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
 
-                                <div id="qrCodeContainer" class="mt-4 pt-3 text-center border-top border-secondary"
-                                    style="border-color: var(--border-glass) !important; display: none;">
-                                    <small class="text-muted d-block mb-2">Scan to Register</small>
-                                    <!-- QR Code Canvas will be appended here -->
+                                    <div id="qrCodeContainer" class="mt-2 text-center" style="display: none;">
+                                        <div class="qr-container d-inline-block p-2 bg-white rounded-3"
+                                            style="border: 4px solid var(--bg-3);">
+                                            <!-- QR Code Canvas will be appended here -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
