@@ -1,31 +1,61 @@
-# Contributing to Campus Event Manager
+# 🤝 Contributing to CampusConnect
 
-First off, thank you for considering contributing to Campus Event Manager! It's people like you that make Campus Event Manager such a great tool.
+Thank you for your interest in contributing to **CampusConnect**! We value the participation of our student community and contributors in making this a world-class campus event management ecosystem.
 
-## Where do I go from here?
+---
 
-If you've noticed a bug or have a question that doesn't belong on the discussions board, [search the issue tracker](../../issues) to see if someone else in the community has already created a ticket. If not, go ahead and [make one](../../issues/new).
+## 🧭 How to Get Started
 
-## Fork & create a branch
+Before you start contributing, please ensure you have:
+1. **Searched the [Issue Tracker](../../issues)** to check if the bug or feature request has already been reported.
+2. **Read the [TECHNICAL_GUIDE.md](./TECHNICAL_GUIDE.md)** to understand the project architecture and development workflow.
 
-If this is something you think you can fix, then [fork Campus Event Manager](https://github.com/tejaswin-amara/campus-event-manager/fork) and create a branch with a descriptive name.
+---
 
-## Get the test suite running
+## 🛠️ Development Workflow
 
-Make sure the required dependencies are installed and you can run the test suite cleanly via:
+### 1. Fork and Clone
+Fork the repository and clone it to your local machine:
+```bash
+git clone https://github.com/tejaswin-amara/campus-connect.git
+cd campus-connect
+```
+
+### 2. Create a Topic Branch
+Always develop your features or fixes in a separate branch:
+```bash
+git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/bug-description
+```
+
+### 3. Setup and Testing
+Ensure your environment is set up according to the [README.md](./README.md). Before making changes, verify that the existing test suite passes:
 ```bash
 ./mvnw clean test
 ```
 
-## Implement your fix or feature
-
-At this point, you're ready to make your changes. Feel free to ask for help; everyone is a beginner at first.
-
-## Open a Pull Request
-
-When you're finished with the changes, create a pull request, also known as a PR.
-- Fill the "Ready for review" template so that we can review your PR. This template helps reviewers understand your changes as well as the purpose of your pull request. 
-- Don't forget to [link PR to issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) if you are solving one.
+### 4. Code Standards & Style
+- Follow standard Java coding conventions.
+- Maintain a **mobile-first** approach for any UI changes.
+- Ensure all new logic is covered by unit tests.
 
 ---
-Thank you!
+
+## 📤 Submitting Changes
+
+### Open a Pull Request
+Once you are finished with your changes:
+1. Push your branch to GitHub.
+2. Open a Pull Request (PR) against the `main` branch.
+3. Use the provided **Pull Request Template** to describe your changes.
+4. Ensure the **GitHub Actions CI** build passes for your PR.
+
+> **Note:** Link your PR to a specific issue using keywords like `Closes #123` or `Fixes #456` in the description.
+
+---
+
+## ⚖️ Code of Conduct
+By participating in this project, you agree to abide by our community standards and treat all contributors with respect and professionalism.
+
+Thank you for making **CampusConnect** better for everyone! ❤️
