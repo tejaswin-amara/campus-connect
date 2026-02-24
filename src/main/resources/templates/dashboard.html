@@ -133,8 +133,8 @@
             </div>
 
             <!-- Server-Side Empty State -->
-            <div th:if="${#lists.isEmpty(events)}" class="text-center py-5">
-                <div class="glass p-5 rounded-4 d-inline-block">
+            <div th:if="${#lists.isEmpty(events)}" class="text-center py-5 animate-in animate-float">
+                <div class="glass p-5 rounded-4 d-inline-block shadow-lg">
                     <i class="bi bi-calendar-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
                     <h3 class="h5 fw-bold text-white">No Events Found</h3>
                     <p class="text-muted mb-0">There are no events scheduled at the moment.</p>
@@ -150,7 +150,8 @@
             <!-- Event Grid -->
             <!-- Only show grid if events exist -->
             <div th:unless="${#lists.isEmpty(events)}" class="event-grid" id="eventsGrid">
-                <div th:each="event, stat : ${events}" th:data-category="${event.category}" class="event-item">
+                <div th:each="event, stat : ${events}" th:data-category="${event.category}"
+                    class="event-item animate-in" th:style="'animation-delay: ' + (${stat.index} * 0.05) + 's;'">
                     <!-- Event Card -->
                     <div class="event-card" onclick="openDetailModal(this)" th:data-id="${event.id}" role="button"
                         tabindex="0" th:aria-label="'View details for ' + ${event.title}" th:data-title="${event.title}"
@@ -164,7 +165,8 @@
 
                         <div class="card-img-wrapper">
                             <img th:if="${event.imageUrl != null and !#strings.isEmpty(event.imageUrl)}"
-                                th:src="${event.imageUrl}" class="card-img" loading="lazy">
+                                th:src="@{${event.imageUrl}}" class="card-img" loading="lazy"
+                                onerror="this.onerror=null; this.src='/images/logo.png'; this.classList.add('opacity-25');">
                             <div th:if="${event.imageUrl == null or #strings.isEmpty(event.imageUrl)}"
                                 class="d-flex align-items-center justify-content-center h-100 bg-dark text-muted fs-1 opacity-25">
                                 <i class="bi bi-image"></i>
@@ -183,18 +185,21 @@
                                     th:classappend="${event.category == 'Technical'} ? 'badge-tech' : (${event.category == 'Cultural'} ? 'badge-cultural' : (${event.category == 'Sports'} ? 'badge-sports' : (${event.category == 'Workshop'} ? 'badge-workshop' : (${event.category == 'Seminar'} ? 'badge-seminar' : 'glass'))))"
                                     th:text="${event.category}">Category</span>
                             </div>
-                            <h5 class="event-title mb-1 text-truncate" th:text="${event.title}">Title</h5>
-                            <div class="d-flex align-items-center gap-2 text-muted small mb-3">
-                                <i class="bi bi-calendar3"></i>
-                                <div class="small fw-semibold text-white"
-                                    th:text="${#temporals.format(event.dateTime, 'MMM dd, yyyy')}">Date</div>
-                                <div class="small text-muted"
-                                    th:if="${event.endDateTime != null && !event.endDateTime.toLocalDate().isEqual(event.dateTime.toLocalDate())}"
-                                    th:text="'to ' + ${#temporals.format(event.endDateTime, 'MMM dd, yyyy')}">to Date
+                            <h5 class="event-title mb-2" th:text="${event.title}">Title</h5>
+                            <div class="event-meta-info text-muted small mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-calendar3"></i>
+                                    <span class="text-white fw-medium"
+                                        th:text="${#temporals.format(event.dateTime, 'MMM dd, yyyy')}">Date</span>
+                                    <span
+                                        th:if="${event.endDateTime != null && !event.endDateTime.toLocalDate().isEqual(event.dateTime.toLocalDate())}"
+                                        th:text="' - ' + ${#temporals.format(event.endDateTime, 'MMM dd, yyyy')}">to
+                                        Date</span>
                                 </div>
-                                <span class="mx-1">•</span>
-                                <i class="bi bi-geo-alt"></i> <span class="text-truncate" style="max-width: 120px;"
-                                    th:text="${event.venue}">Venue</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span th:text="${event.venue}">Venue</span>
+                                </div>
                             </div>
 
                             <!-- Action Area (Visual Only, entire card is clickable) -->
@@ -230,20 +235,20 @@
                             <!-- Loading Placeholder or Fallback icon -->
                             <i class="bi bi-image text-muted opacity-25 fs-1 position-absolute"></i>
                             <img id="detailImg" src="" class="img-fluid position-relative z-1"
-                                style="max-height: 100%; width: 100%; object-fit: contain; display: none;">
+                                style="max-height: 100%; width: 100%; object-fit: contain; display: none;"
+                                onerror="this.onerror=null; this.src='/images/logo.png'; this.classList.add('opacity-10');">
                         </div>
 
                         <!-- Right Column: Details -->
-                        <div class="col-lg-7 h-100">
-                            <div class="p-4 h-100 d-flex flex-column overflow-hidden custom-scrollbar">
+                        <div class="col-lg-7 h-100 overflow-y-auto custom-scrollbar">
+                            <div class="p-4 h-100 d-flex flex-column">
                                 <div class="pe-5 flex-shrink-0">
-                                    <!-- Padding for close button, flex-shrink-0 to prevent crushing -->
                                     <span id="detailCat" class="badge-pill mb-2">Category</span>
                                     <h2 id="detailTitle" class="fw-bold mb-3 l-spacing-tight">Event Title</h2>
                                 </div>
 
                                 <!-- Meta Grid -->
-                                <div class="d-flex flex-wrap gap-3 justify-content-between mb-3 border-bottom border-secondary pb-3 flex-shrink-0"
+                                <div class="d-flex flex-wrap gap-3 justify-content-between mb-4 border-bottom border-secondary pb-3 flex-shrink-0"
                                     style="border-color: var(--border-glass) !important;">
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="rounded-circle glass d-flex align-items-center justify-content-center"
@@ -283,14 +288,14 @@
                                 </div>
 
                                 <!-- About Section -->
-                                <!-- About Section (Fill remaining space, scroll internally if needed) -->
-                                <div class="mb-3 flex-grow-1 overflow-y-auto custom-scrollbar pe-2">
+                                <div class="mb-4">
                                     <h5 class="fw-bold mb-2 small text-uppercase text-muted">About this Event</h5>
-                                    <p id="detailDesc" class="text-muted" style="font-size: 0.95rem; line-height: 1.6;">
+                                    <p id="detailDesc" class="text-muted"
+                                        style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;">
                                         Description...</p>
                                 </div>
 
-                                <!-- Action Footer (Sticky Bottom) -->
+                                <!-- Action Footer -->
                                 <div class="d-grid gap-2 d-sm-flex align-items-center mt-auto pt-3 border-top border-secondary flex-shrink-0"
                                     style="border-color: var(--border-glass) !important;">
                                     <a id="detailLink" href="#" target="_blank"
@@ -302,9 +307,9 @@
                                     </button>
                                 </div>
 
-                                <div id="qrCodeContainer" class="mt-5 pt-3 text-center border-top border-secondary"
+                                <div id="qrCodeContainer" class="mt-4 pt-3 text-center border-top border-secondary"
                                     style="border-color: var(--border-glass) !important; display: none;">
-                                    <small class="text-muted d-block mb-3">Scan to Register</small>
+                                    <small class="text-muted d-block mb-2">Scan to Register</small>
                                     <!-- QR Code Canvas will be appended here -->
                                 </div>
                             </div>

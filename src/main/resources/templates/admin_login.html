@@ -33,43 +33,35 @@
             </div>
 
             <form th:action="@{/admin/login}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                 <!-- Static alert removed to use Premium Toasts -->
 
                 <!-- Username -->
-                <div class="mb-3">
-                    <label for="username" class="form-label small text-muted fw-bold text-uppercase">Username</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-transparent border-end-0 text-muted"
-                            style="border-color: var(--border-glass);">
-                            <i class="bi bi-person"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0 ps-0" id="username" name="username"
-                            placeholder="Enter username" required
-                            style="background: rgba(255,255,255,0.03); border-color: var(--border-glass); color: white;">
-                    </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username"
+                        required
+                        style="background: rgba(255,255,255,0.03); border-color: var(--border-glass); color: white;">
+                    <label for="username" class="fw-bold px-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-person text-muted"></i> Username
+                    </label>
                 </div>
 
-                <!-- Password -->
-                <div class="mb-4">
-                    <label for="password"
-                        class="form-label small text-muted fw-bold text-uppercase d-flex justify-content-between">
-                        Password
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-transparent border-end-0 text-muted"
-                            style="border-color: var(--border-glass);">
-                            <i class="bi bi-lock"></i>
-                        </span>
-                        <input type="password" class="form-control border-start-0 border-end-0 ps-0" id="password"
-                            name="password" placeholder="Enter password" required
-                            style="background: rgba(255,255,255,0.03); border-color: var(--border-glass); color: white;">
-                        <span class="input-group-text bg-transparent border-start-0 text-muted cursor-pointer"
-                            style="border-color: var(--border-glass); cursor: pointer;" onclick="togglePassword()">
-                            <i class="bi bi-eye" id="toggleIcon"></i>
-                        </span>
+                <!-- Password with Toggle -->
+                <div class="input-group mb-4">
+                    <div class="form-floating flex-grow-1">
+                        <input type="password" class="form-control border-end-0" id="password" name="password"
+                            placeholder="Enter password" required
+                            style="background: rgba(255,255,255,0.03); border-color: var(--border-glass); border-top-right-radius: 0; border-bottom-right-radius: 0; color: white;">
+                        <label for="password" class="fw-bold px-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-lock text-muted"></i> Password
+                        </label>
                     </div>
+                    <span class="input-group-text bg-transparent text-muted cursor-pointer"
+                        style="border-color: var(--border-glass); background: rgba(255,255,255,0.03) !important; cursor: pointer; border-left: none;"
+                        onclick="togglePassword()">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </span>
                 </div>
 
                 <!-- Submit -->

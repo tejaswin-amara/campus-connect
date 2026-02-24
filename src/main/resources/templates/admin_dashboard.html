@@ -266,55 +266,69 @@
                 <div class="modal-body">
                     <form th:action="@{/admin/add-event}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Title</label>
-                            <input type="text" class="form-control" name="title" required>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" name="title" id="addTitle" placeholder="Title"
+                                required>
+                            <label for="addTitle" class="fw-bold">Title</label>
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">Category</label>
-                                <select class="form-select bg-dark text-white border-secondary" name="category" required
-                                    style="background-color: var(--bg-surface) !important; border-color: var(--border-glass) !important;">
-                                    <option value="Technical">Technical</option>
-                                    <option value="Cultural">Cultural</option>
-                                    <option value="Sports">Sports</option>
-                                    <option value="Workshop">Workshop</option>
-                                    <option value="Seminar">Seminar</option>
-                                </select>
+                                <div class="form-floating">
+                                    <select class="form-select bg-dark text-white border-secondary" name="category"
+                                        id="addCategory" required
+                                        style="background-color: var(--bg-surface) !important; border-color: var(--border-glass) !important;">
+                                        <option value="Technical">Technical</option>
+                                        <option value="Cultural">Cultural</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Workshop">Workshop</option>
+                                        <option value="Seminar">Seminar</option>
+                                    </select>
+                                    <label for="addCategory" class="fw-bold px-3">Category</label>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">Venue</label>
-                                <input type="text" class="form-control" name="venue" required>
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="venue" id="addVenue"
+                                        placeholder="Venue" required>
+                                    <label for="addVenue" class="fw-bold px-3">Venue</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Description</label>
-                            <textarea class="form-control" name="description" rows="3" required></textarea>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" name="description" id="addDesc" placeholder="Description"
+                                style="height: 100px" required></textarea>
+                            <label for="addDesc" class="fw-bold">Description</label>
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">Start Date &
-                                    Time</label>
-                                <input type="datetime-local" class="form-control" name="dateTime" required>
+                                <div class="form-floating">
+                                    <input type="datetime-local" class="form-control" name="dateTime" id="addStart"
+                                        placeholder="Start" required>
+                                    <label for="addStart" class="fw-bold px-3">Start Date & Time</label>
+                                </div>
                             </div>
                             <div class="col-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">End Date &
-                                    Time</label>
-                                <input type="datetime-local" class="form-control" name="endDateTime">
+                                <div class="form-floating">
+                                    <input type="datetime-local" class="form-control" name="endDateTime" id="addEnd"
+                                        placeholder="End">
+                                    <label for="addEnd" class="fw-bold px-3">End Date & Time</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Registration Link</label>
-                            <input type="url" class="form-control" name="registrationLink">
+                        <div class="form-floating mb-3">
+                            <input type="url" class="form-control" name="registrationLink" id="addRegLink"
+                                placeholder="Link">
+                            <label for="addRegLink" class="fw-bold">Registration Link</label>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Max Capacity</label>
-                            <input type="number" class="form-control" name="maxCapacity" min="1"
-                                placeholder="Leave blank for unlimited">
+                        <div class="form-floating mb-3">
+                            <input type="number" class="form-control" name="maxCapacity" id="addCapacity" min="1"
+                                placeholder="Capacity">
+                            <label for="addCapacity" class="fw-bold">Max Capacity (Leave blank for unlimited)</label>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Responses Link</label>
-                            <input type="url" class="form-control" name="responsesLink">
+                        <div class="form-floating mb-3">
+                            <input type="url" class="form-control" name="responsesLink" id="addResLink"
+                                placeholder="Link">
+                            <label for="addResLink" class="fw-bold">Responses Link</label>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted text-uppercase fw-bold">Event Banner</label>
@@ -345,57 +359,69 @@
                         <input type="hidden" id="editId" name="id">
 
                         <!-- Similar fields to Create -->
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Title</label>
-                            <input type="text" class="form-control" id="editTitle" name="title" required>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="editTitle" name="title" placeholder="Title"
+                                required>
+                            <label for="editTitle" class="fw-bold">Title</label>
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">Category</label>
-                                <select class="form-select bg-dark text-white border-secondary" id="editCategory"
-                                    name="category" required
-                                    style="background-color: var(--bg-surface) !important; border-color: var(--border-glass) !important;">
-                                    <option value="Technical">Technical</option>
-                                    <option value="Cultural">Cultural</option>
-                                    <option value="Sports">Sports</option>
-                                    <option value="Workshop">Workshop</option>
-                                    <option value="Seminar">Seminar</option>
-                                </select>
+                                <div class="form-floating">
+                                    <select class="form-select bg-dark text-white border-secondary" id="editCategory"
+                                        name="category" required
+                                        style="background-color: var(--bg-surface) !important; border-color: var(--border-glass) !important;">
+                                        <option value="Technical">Technical</option>
+                                        <option value="Cultural">Cultural</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Workshop">Workshop</option>
+                                        <option value="Seminar">Seminar</option>
+                                    </select>
+                                    <label for="editCategory" class="fw-bold px-3">Category</label>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">Venue</label>
-                                <input type="text" class="form-control" id="editVenue" name="venue" required>
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="editVenue" name="venue"
+                                        placeholder="Venue" required>
+                                    <label for="editVenue" class="fw-bold px-3">Venue</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Description</label>
-                            <textarea class="form-control" id="editDesc" name="description" rows="3"
-                                required></textarea>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="editDesc" name="description" placeholder="Description"
+                                style="height: 100px" required></textarea>
+                            <label for="editDesc" class="fw-bold">Description</label>
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">Start</label>
-                                <input type="datetime-local" class="form-control" id="editDateTime" name="dateTime"
-                                    required>
+                                <div class="form-floating">
+                                    <input type="datetime-local" class="form-control" id="editDateTime" name="dateTime"
+                                        placeholder="Start" required>
+                                    <label for="editDateTime" class="fw-bold px-3">Start</label>
+                                </div>
                             </div>
                             <div class="col-6">
-                                <label class="form-label small text-muted text-uppercase fw-bold">End</label>
-                                <input type="datetime-local" class="form-control" id="editEndDateTime"
-                                    name="endDateTime">
+                                <div class="form-floating">
+                                    <input type="datetime-local" class="form-control" id="editEndDateTime"
+                                        name="endDateTime" placeholder="End">
+                                    <label for="editEndDateTime" class="fw-bold px-3">End</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Registration Link</label>
-                            <input type="url" class="form-control" id="editLink" name="registrationLink">
+                        <div class="form-floating mb-3">
+                            <input type="url" class="form-control" id="editLink" name="registrationLink"
+                                placeholder="Link">
+                            <label for="editLink" class="fw-bold">Registration Link</label>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Max Capacity</label>
+                        <div class="form-floating mb-3">
                             <input type="number" class="form-control" id="editCapacity" name="maxCapacity" min="1"
-                                placeholder="Leave blank for unlimited">
+                                placeholder="Capacity">
+                            <label for="editCapacity" class="fw-bold">Max Capacity</label>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted text-uppercase fw-bold">Responses Link</label>
-                            <input type="url" class="form-control" id="editResponsesLink" name="responsesLink">
+                        <div class="form-floating mb-3">
+                            <input type="url" class="form-control" id="editResponsesLink" name="responsesLink"
+                                placeholder="Link">
+                            <label for="editResponsesLink" class="fw-bold">Responses Link</label>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small text-muted text-uppercase fw-bold">Change Image
