@@ -2,6 +2,7 @@ package com.tejaswin.campus.controller;
 
 import com.tejaswin.campus.model.User;
 import com.tejaswin.campus.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import java.util.List;
+
 @Controller
+@Validated
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -24,7 +34,6 @@ public class AuthController {
 
     @GetMapping("/")
     public String root(HttpSession session) {
-        // Auto-login as Guest Student
         User guest = userService.getGuestUser();
         logger.debug("Root accessed. Guest user found? {}", (guest != null));
         if (guest != null) {
@@ -33,7 +42,7 @@ public class AuthController {
             return "redirect:/student/dashboard";
         }
         logger.warn("Guest user NOT found. Redirecting to admin login.");
-        return "redirect:/admin/login"; // Fallback if guest user missing
+        return "redirect:/admin/login";
     }
 
     @GetMapping("/admin/login")
@@ -42,10 +51,15 @@ public class AuthController {
     }
 
     @PostMapping("/admin/login")
-    public String adminLogin(@RequestParam String username,
-            @RequestParam String password,
-            HttpSession session,
+    public String adminLogin(@RequestParam @Size(min = 1, max = 72) String username,
+            @RequestParam @Size(min = 1, max = 72) String password,
+            HttpServletRequest request,
             RedirectAttributes redirectAttributes) {
+
+        if (password != null && password.length() > 72) {
+            redirectAttributes.addFlashAttribute("error", "Invalid admin credentials!");
+            return "redirect:/admin/login";
+        }
 
         User user = userService.authenticate(username, password);
 
@@ -54,7 +68,21 @@ public class AuthController {
             return "redirect:/admin/login";
         }
 
-        session.setAttribute("loggedInUser", user);
+        // Prevent session fixation: invalidate old session and start a fresh one
+        HttpSession oldSession = request.getSession(false);
+        if (oldSession != null) {
+            oldSession.invalidate();
+        }
+
+        HttpSession newSession = request.getSession(true);
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                user.getUsername(), null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+        newSession.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
+
+        newSession.setAttribute("loggedInUser", user);
         return "redirect:/admin/dashboard";
     }
 
@@ -63,4 +91,5 @@ public class AuthController {
         session.invalidate();
         return "redirect:/";
     }
+
 }

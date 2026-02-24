@@ -6,7 +6,7 @@ import com.tejaswin.campus.service.EventService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import com.tejaswin.campus.config.AppConfig;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,12 +20,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -42,13 +42,13 @@ public class AdminController {
 
     private final Path uploadBaseDir;
 
-    public AdminController(EventService eventService,
-            @Value("${app.upload-dir:uploads}") String uploadDir) {
+    public AdminController(EventService eventService, AppConfig appConfig) {
         this.eventService = eventService;
-        this.uploadBaseDir = Paths.get(uploadDir).toAbsolutePath().normalize();
+        this.uploadBaseDir = Paths.get(appConfig.getUploadDir()).toAbsolutePath().normalize();
     }
 
     @GetMapping("/dashboard")
+    @Transactional(readOnly = true)
     public String adminDashboard(HttpSession session, Model model) {
         User user = (User) session.getAttribute("loggedInUser");
         if (user == null || !"ADMIN".equals(user.getRole())) {
@@ -170,18 +170,28 @@ public class AdminController {
             if (imageFile != null && !imageFile.isEmpty()) {
                 String oldUrl = event.getImageUrl();
                 String savedUrl = saveUploadedImage(imageFile);
-                if (savedUrl != null) {
-                    event.setImageUrl(savedUrl);
-                    // Best-effort delete of old image to prevent orphaned files
-                    if (oldUrl != null && oldUrl.startsWith("/uploads/")) {
-                        try {
-                            String oldFile = oldUrl.substring("/uploads/".length());
-                            Path oldPath = uploadBaseDir.resolve(oldFile);
+
+                // --- FIX: Stop execution if validation fails ---
+                if (savedUrl == null) {
+                    redirectAttributes.addFlashAttribute("error", "Invalid image file. Allowed: JPG, PNG, WebP, GIF.");
+                    return "redirect:/admin/dashboard";
+                }
+
+                event.setImageUrl(savedUrl);
+                // Best-effort delete of old image to prevent orphaned files
+                if (oldUrl != null && oldUrl.startsWith("/uploads/")) {
+                    try {
+                        String oldFile = oldUrl.substring("/uploads/".length());
+                        Path oldPath = uploadBaseDir.resolve(oldFile).normalize();
+                        if (oldPath.startsWith(uploadBaseDir)) {
                             Files.deleteIfExists(oldPath);
                             logger.info("AUDIT: Deleted old image file: {}", oldPath);
-                        } catch (Exception e) {
-                            logger.warn("Failed to delete old image file: {}", oldUrl, e);
+                        } else {
+                            logger.warn("Security: Path traversal attempt prevented during edit deletion: {}",
+                                    oldUrl);
                         }
+                    } catch (Exception e) {
+                        logger.warn("Failed to delete old image file: {}", oldUrl, e);
                     }
                 }
             }
@@ -238,25 +248,54 @@ public class AdminController {
             return null;
         }
 
-        String lowerName = originalFilename.toLowerCase();
-        boolean validExtension = ALLOWED_IMAGE_EXTENSIONS.stream().anyMatch(lowerName::endsWith);
-        if (!validExtension) {
+        // Sanitize: replace any character that is not alphanumeric, dot, underscore, or
+        // hyphen with '_'
+        String sanitizedFilename = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
+
+        if (sanitizedFilename.contains("..")) {
+            logger.warn("Security: Path traversal attempt detected in filename: {}", originalFilename);
+            return null;
+        }
+
+        // Extension check (O(1))
+        String ext = "";
+        int i = sanitizedFilename.lastIndexOf('.');
+        if (i > 0) {
+            ext = sanitizedFilename.substring(i); // includes the dot, e.g. ".jpg"
+        }
+
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(ext.toLowerCase())) {
             logger.warn("Rejected upload with invalid extension: {}", originalFilename);
             return null;
         }
 
         try {
-            String fileName = UUID.randomUUID() + "_" + originalFilename;
-            Path uploadPath = uploadBaseDir;
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            String fileName = UUID.randomUUID().toString() + ext;
+            Path targetPath = uploadBaseDir.resolve(fileName).normalize();
+
+            // Ensure we don't traverse outside the upload directory
+            if (!targetPath.startsWith(uploadBaseDir)) {
+                logger.warn("Security: Path traversal attempt prevented for file: {}", fileName);
+                return null;
             }
+
+            if (!Files.exists(uploadBaseDir)) {
+                Files.createDirectories(uploadBaseDir);
+            }
+
+            // Explicit TOCTOU Symlink check
+            if (Files.isSymbolicLink(targetPath)) {
+                logger.warn("Security: Attempted to overwrite symbolic link: {}", targetPath);
+                return null;
+            }
+
             try (var inputStream = imageFile.getInputStream()) {
-                Files.copy(inputStream, uploadPath.resolve(fileName),
-                        StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(inputStream, targetPath,
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                        java.nio.file.LinkOption.NOFOLLOW_LINKS);
             }
             return "/uploads/" + fileName;
-        } catch (IOException e) {
+        } catch (java.io.IOException e) {
             logger.error("Failed to save uploaded image: {}", originalFilename, e);
             return null;
         }

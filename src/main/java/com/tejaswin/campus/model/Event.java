@@ -9,6 +9,9 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.URL;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,6 +40,9 @@ public class Event {
     @NotBlank(message = "Category is required")
     private String category; // Technical, Cultural, Sports, Workshop, Seminar
 
+    @URL(message = "Invalid registration link URL")
+    @Pattern(regexp = "^https?://.*", message = "Must be a valid HTTP/HTTPS URL")
+    @Size(max = 1000, message = "URL too long")
     @Column(length = 1000)
     private String registrationLink;
 
@@ -46,6 +52,9 @@ public class Event {
     @Column(length = 1000)
     private String imageUrl;
 
+    @URL(message = "Invalid responses link URL")
+    @Pattern(regexp = "^https?://.*", message = "Must be a valid HTTP/HTTPS URL")
+    @Size(max = 1000, message = "URL too long")
     @Column(length = 1000)
     private String responsesLink;
 

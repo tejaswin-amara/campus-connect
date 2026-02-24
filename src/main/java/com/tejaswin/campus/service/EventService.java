@@ -72,6 +72,7 @@ public class EventService {
      *
      * @param event event to save
      */
+    @Transactional
     public void saveEvent(Event event) {
         boolean isNew = event.getId() == null;
         eventRepository.save(event);
@@ -171,9 +172,13 @@ public class EventService {
                 String imageUrl = event.getImageUrl();
                 if (imageUrl.startsWith("/uploads/")) {
                     String filename = imageUrl.substring("/uploads/".length());
-                    Path path = uploadBaseDir.resolve(filename);
-                    Files.deleteIfExists(path);
-                    logger.info("AUDIT: Deleted image file: {}", path);
+                    Path path = uploadBaseDir.resolve(filename).normalize();
+                    if (path.startsWith(uploadBaseDir)) {
+                        Files.deleteIfExists(path);
+                        logger.info("AUDIT: Deleted image file: {}", path);
+                    } else {
+                        logger.warn("Security: Path traversal attempt prevented during deletion: {}", imageUrl);
+                    }
                 }
             } catch (Exception e) {
                 logger.error("Failed to delete image file for event ID: {}", id, e);

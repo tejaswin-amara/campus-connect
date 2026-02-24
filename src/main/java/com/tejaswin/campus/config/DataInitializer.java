@@ -8,7 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -18,35 +21,53 @@ public class DataInitializer implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final PasswordEncoder passwordEncoder;
     private final String adminPassword;
 
     public DataInitializer(UserRepository userRepository, EventRepository eventRepository,
+            PasswordEncoder passwordEncoder,
             @Value("${app.admin-password:admin123}") String adminPassword) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
+        this.passwordEncoder = passwordEncoder;
         this.adminPassword = adminPassword;
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         // 1. Ensure Guest User Exists (CRITICAL: Required for auto-login on /)
-        if (userRepository.findByUsername("guest").isEmpty()) {
-            User guest = new User();
+        User guest = userRepository.findByUsernameForUpdate("guest").orElse(null);
+        if (guest == null) {
+            guest = new User();
             guest.setUsername("guest");
-            guest.setPassword("guest");
+            guest.setPassword(passwordEncoder.encode("guest"));
             guest.setRole("STUDENT");
             userRepository.save(guest);
             logger.info("✅ Guest user created (auto-login enabled)");
+        } else if (guest.getPassword() != null && !isBCryptHash(guest.getPassword())) {
+            // Assumes pre-migration passwords are stored as plaintext. Risk of irreversible
+            // double-hashing if prior schemes existed.
+            guest.setPassword(passwordEncoder.encode(guest.getPassword()));
+            userRepository.save(guest);
+            logger.info("✅ Guest password migrated to BCrypt");
         }
 
         // 2. Ensure Admin User Exists
-        if (userRepository.findByUsername("admin").isEmpty()) {
-            User admin = new User();
+        User admin = userRepository.findByUsernameForUpdate("admin").orElse(null);
+        if (admin == null) {
+            admin = new User();
             admin.setUsername("admin");
-            admin.setPassword(adminPassword);
+            admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setRole("ADMIN");
             userRepository.save(admin);
             logger.info("✅ Admin user created");
+        } else if (admin.getPassword() != null && !isBCryptHash(admin.getPassword())) {
+            // Assumes pre-migration passwords are stored as plaintext. Risk of irreversible
+            // double-hashing if prior schemes existed.
+            admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+            userRepository.save(admin);
+            logger.info("✅ Admin password migrated to BCrypt");
         }
 
         // 3. Ensure Sample Event Exists
@@ -64,5 +85,13 @@ public class DataInitializer implements CommandLineRunner {
             eventRepository.save(welcomeEvent);
             logger.info("✅ Sample 'Welcome' event created.");
         }
+    }
+
+    /**
+     * Returns true if the given password string is already a BCrypt hash.
+     * BCrypt hashes always start with "$2a$", "$2b$", or "$2y$".
+     */
+    private boolean isBCryptHash(String password) {
+        return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$");
     }
 }

@@ -65,10 +65,16 @@ public class EventController {
             return "redirect:/";
         }
 
-        // Track interest (analytics) - Optional, keeping for Admin stats
+        // Track interest for analytics
+        eventService.registerStudent(eventId, user.getId());
 
         Event event = eventService.findEventById(eventId);
         if (event != null && event.getRegistrationLink() != null && !event.getRegistrationLink().isEmpty()) {
+
+            // --- FIX: Implement the tracking logic ---
+            logger.info("ANALYTICS: User {} ({}) clicked registration link for Event ID: {}",
+                    user.getUsername(), user.getId(), eventId);
+
             String link = event.getRegistrationLink().trim();
             // Security: Only allow HTTP/HTTPS redirects to prevent open-redirect attacks
             if (link.startsWith("http://") || link.startsWith("https://")) {

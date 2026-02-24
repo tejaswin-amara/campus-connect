@@ -17,7 +17,7 @@ The application follows a standard **Model-View-Controller (MVC)** architecture 
 
 | Component | Technology | Version |
 | :--- | :--- | :--- |
-| **Backend Framework** | Spring Boot | 3.2.0 |
+| **Backend Framework** | Spring Boot | 3.4.2 |
 | **Language** | Java | 21 (LTS) |
 | **Database** | MySQL | 8.0+ |
 | **ORM** | Hibernate (via Spring Data JPA) | - |
@@ -50,12 +50,30 @@ The application follows a standard **Model-View-Controller (MVC)** architecture 
 -   **Animations**: CSS3 animations with staggered delays (`.delay-100`, etc.) provide a smooth loading experience.
 -   **Glassmorphism**: A consistent design language using semi-transparent backgrounds and blurs.
 
-## 4. Database Schema 🗄️
+## 4. Security Architecture 🛡️
+
+The application implements a "Security by Design" approach following a comprehensive security audit.
+
+### 4.1 Authentication & Authorization
+- **BCrypt Hardening**: Passwords are hashed using BCrypt. The authentication service includes a constant-time dummy execution path to prevent username enumeration via timing attacks.
+- **Session Management**: Upon successful login, the existing session is invalidated and a new one is created to prevent session fixation exploits.
+- **Role-Based Access**: Secured via Spring Security Filters enforcing `hasRole('ADMIN')` for all management endpoints.
+
+### 4.2 Traffic & Forgery Control
+- **Rate Limiting**: Implemented via `RateLimitingFilter` (using Bucket4j) which throttles login attempts to 5 requests per 15 minutes per IP address.
+- **CSRF Protection**: All POST/PUT/DELETE forms include an `_csrf` token validated at the server level.
+
+### 4.3 Database & Concurrency
+- **Schema Migrations**: Managed via **Flyway** to ensure consistent environments.
+- **Race Condition Prevention**: Pessimistic write locks are used during critical data initialization.
+- **Transactional Integrity**: Strict `@Transactional` boundaries ensure atomic updates and snapshot isolation.
+
+## 5. Database Schema 🗄️
 
 ### `User` Table
 -   `id` (Long, PK)
 -   `username` (String, Unique)
--   `password` (String) - *Note: Stored securely.*
+-   `password` (String) - *Hashed with BCrypt.*
 -   `role` (String) - `ADMIN` or `STUDENT`
 
 ### `Event` Table

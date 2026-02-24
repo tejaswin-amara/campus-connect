@@ -36,8 +36,8 @@ USER appuser
 # Expose the configurable port (default 9090)
 EXPOSE ${PORT:-9090}
 
-# Health check (Fix: Use wget on the actual port the app is running on)
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+# Health check (More lenient for cloud startup)
+HEALTHCHECK --interval=60s --timeout=15s --start-period=60s --retries=5 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-9090}/admin/login || exit 1
 
 # Run the application
