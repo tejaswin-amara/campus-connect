@@ -43,7 +43,7 @@ class AdminControllerIntegrationTest {
     void whenAccessAdminDashboardWithoutSession_thenRedirectToLogin() throws Exception {
         mockMvc.perform(get("/admin/dashboard"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("http://localhost/admin/login"));
+                .andExpect(redirectedUrl("/admin/login"));
     }
 
     @Test
@@ -56,7 +56,7 @@ class AdminControllerIntegrationTest {
     void whenPostWithCsrfTokenButNoSession_thenRedirectToLogin() throws Exception {
         mockMvc.perform(post("/admin/delete-event/1").with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("http://localhost/admin/login"));
+                .andExpect(redirectedUrl("/admin/login"));
     }
 
     @Test
