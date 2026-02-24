@@ -1,13 +1,13 @@
 -- V1__Initial_Schema.sql
 -- Security remediated schema based on Zero-Trust audit
 
--- 1. Users table with 72-char password limit for BCrypt
+-- 1. Users table; VARCHAR(255) accommodates BCrypt (60 chars) and any future encoder (e.g. DelegatingPasswordEncoder, Argon2)
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(72) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
-    email VARCHAR(100)
+    email VARCHAR(100) UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. Events table with robust URL lengths
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS events (
     venue VARCHAR(255) NOT NULL,
     category VARCHAR(50) NOT NULL,
     registration_link VARCHAR(1000),
-    max_capacity INT,
+    max_capacity INT CHECK (max_capacity > 0),
     image_url VARCHAR(1000),
     responses_link VARCHAR(1000)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -71,12 +71,10 @@ public class AuthController {
         // Prevent session fixation race conditions
         HttpSession oldSession = request.getSession(false);
         if (oldSession != null) {
-            synchronized (oldSession) {
-                try {
-                    oldSession.invalidate();
-                } catch (IllegalStateException e) {
-                    // Already invalidated
-                }
+            try {
+                oldSession.invalidate();
+            } catch (IllegalStateException e) {
+                // Already invalidated
             }
         }
 

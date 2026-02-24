@@ -10,9 +10,9 @@
 [![Flyway Migrations](https://img.shields.io/badge/DB-Flyway_Integrated-CC0201?style=for-the-badge&logo=flyway&logoColor=white)](https://flywaydb.org/)
 [![Resilience4j](https://img.shields.io/badge/Reliability-Resilience4j-F7DF1E?style=for-the-badge&logo=blueprint&logoColor=black)](#-architecture-resilience)
 
-[Getting Started](#-getting-started) · [Architecture](#-technical-architecture) · [Security](#️-security-hardening-zero-trust)
----
+[Getting Started](#-getting-started) · [Architecture](#-technical-architecture) · [Security](#-security-hardening-zero-trust)
 
+---
 ## 🎯 Project Overview
 
 **CampusConnect** is more than just an event listing site; it's a sophisticated university middleware designed with a **mobile-first** philosophy. Developed to bridge the communication gap between student organizations and university administrations, the platform leverages cutting-edge web design (glassmorphism, micro-animations) and enterprise-grade backend stability to provide a "handheld-first" campus experience.
@@ -105,14 +105,9 @@ Our 2026 security audit implemented a comprehensive Zero-Trust model:
 ---
 
 ## 🔑 Default Accounts
-
-| Role | Username | Password |
-| :--- | :--- | :--- |
-| **Admin** | `admin` | `admin123` |
-| **Student** | *Guest Access* | *Automatic* |
 | Role | Username | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin` | *(set via `ADMIN_PASSWORD` env var on first run)* |
-| **Student** | *Guest Access* | *Automatic* |Integrated as per university guidelines. All rights reserved.
+| **Student** | *Guest Access* | *Automatic* || **Student** | *Guest Access* | *Automatic* |Integrated as per university guidelines. All rights reserved.
 
 Created with ❤️ by **Tejaswin Amara**

@@ -25,6 +25,10 @@ public class AppConfig {
     }
 
     public void setBcryptStrength(int bcryptStrength) {
+        if (bcryptStrength < 4 || bcryptStrength > 31) {
+            throw new IllegalArgumentException(
+                    "app.bcrypt.strength must be between 4 and 31, got: " + bcryptStrength);
+        }
         this.bcryptStrength = bcryptStrength;
     }
 

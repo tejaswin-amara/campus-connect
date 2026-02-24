@@ -13,15 +13,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.tejaswin.campus.config.AppConfig;
 
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterAccess(java.time.Duration.ofMinutes(20))
+            .build();
     private final AppConfig appConfig;
 
     public RateLimitingFilter(AppConfig appConfig) {
@@ -44,7 +46,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         if ("POST".equalsIgnoreCase(request.getMethod()) && "/admin/login".equals(request.getServletPath())) {
             String ip = getClientIp(request);
-            Bucket bucket = buckets.computeIfAbsent(ip, k -> createNewBucket());
+            Bucket bucket = buckets.get(ip, k -> createNewBucket());
 
             if (bucket.tryConsume(1)) {
                 filterChain.doFilter(request, response);
@@ -58,10 +60,17 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     }
 
     private String getClientIp(HttpServletRequest request) {
+        // Only trust XFF from known internal/proxy addresses; otherwise use direct IP.
+        String remoteAddr = request.getRemoteAddr();
         String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
+        if (xfHeader != null && isTrustedProxy(remoteAddr)) {
+            return xfHeader.split(",")[0].trim();
         }
-        return xfHeader.split(",")[0].trim();
+        return remoteAddr;
+    }
+
+    private boolean isTrustedProxy(String addr) {
+        // configure via AppConfig or env var; e.g. "127.0.0.1", "10.0.0.0/8"
+        return addr.startsWith("127.") || addr.startsWith("10.");
     }
 }

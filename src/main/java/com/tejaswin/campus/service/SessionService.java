@@ -12,7 +12,10 @@ public class SessionService {
     public static final String USER_SESSION_KEY = "loggedInUser";
 
     private HttpSession getSession(boolean create) {
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attr == null) {
+            return null;
+        }
         return attr.getRequest().getSession(create);
     }
 
