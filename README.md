@@ -10,8 +10,7 @@
 [![Flyway Migrations](https://img.shields.io/badge/DB-Flyway_Integrated-CC0201?style=for-the-badge&logo=flyway&logoColor=white)](https://flywaydb.org/)
 [![Resilience4j](https://img.shields.io/badge/Reliability-Resilience4j-F7DF1E?style=for-the-badge&logo=blueprint&logoColor=black)](#-architecture-resilience)
 
-[Student Dashboard](http://localhost:9090/) · [Admin Panel](http://localhost:9090/admin/login) · [Documentation](#-technical-architecture)
-
+[Getting Started](#-getting-started) · [Architecture](#-technical-architecture) · [Security](#️-security-hardening-zero-trust)
 ---
 
 ## 🎯 Project Overview
@@ -103,10 +102,6 @@ Our 2026 security audit implemented a comprehensive Zero-Trust model:
    - `SPRING_DATASOURCE_PASSWORD`
 
 3. **Run via PowerShell (Recommended):**
-   ```powershell
-   .\run_app.ps1
-   ```
-
 ---
 
 ## 🔑 Default Accounts
@@ -115,10 +110,9 @@ Our 2026 security audit implemented a comprehensive Zero-Trust model:
 | :--- | :--- | :--- |
 | **Admin** | `admin` | `admin123` |
 | **Student** | *Guest Access* | *Automatic* |
-
----
-
-## 📜 License
-Integrated as per university guidelines. All rights reserved.
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin` | *(set via `ADMIN_PASSWORD` env var on first run)* |
+| **Student** | *Guest Access* | *Automatic* |Integrated as per university guidelines. All rights reserved.
 
 Created with ❤️ by **Tejaswin Amara**
