@@ -16,6 +16,8 @@
     <meta property="og:title" content="CampusConnect - Admin Control Center">
     <meta property="og:description" content="Manage and analyze campus events with ease.">
     <meta property="og:type" content="website">
+    <meta name="theme-color" content="#12121A">
+    <meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body>
@@ -257,12 +259,13 @@
     </div>
 
     <!-- ➕ Create Event Modal -->
-    <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true"
+        role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content glass" style="border-radius: var(--radius-modal);">
                 <div class="modal-header border-bottom border-secondary"
                     style="border-color: var(--border-glass) !important;">
-                    <h5 class="modal-title fw-bold">Create New Event</h5>
+                    <h5 class="modal-title fw-bold" id="addEventModalLabel">Create New Event</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close Create Event Modal"></button>
                 </div>
@@ -362,12 +365,13 @@
     </div>
 
     <!-- ✏️ Edit Event Modal -->
-    <div class="modal fade" id="editEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true"
+        role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content glass" style="border-radius: var(--radius-modal);">
                 <div class="modal-header border-bottom border-secondary"
                     style="border-color: var(--border-glass) !important;">
-                    <h5 class="modal-title fw-bold">Edit Event</h5>
+                    <h5 class="modal-title fw-bold" id="editEventModalLabel">Edit Event</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close Edit Event Modal"></button>
                 </div>
@@ -468,7 +472,8 @@
     </div>
 
     <!-- 🗑️ Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel"
+        aria-hidden="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content glass border-danger bg-dark">
                 <div class="modal-body text-center p-5">
@@ -476,7 +481,7 @@
                         style="width: 64px; height: 64px;">
                         <i class="bi bi-exclamation-triangle-fill text-danger fs-3"></i>
                     </div>
-                    <h4 class="fw-bold mb-2">Delete Event?</h4>
+                    <h4 class="fw-bold mb-2" id="deleteEventModalLabel">Delete Event?</h4>
                     <p class="text-muted mb-4">This action cannot be undone. Are you sure you want to delete this event?
                     </p>
                     <div class="d-flex justify-content-center gap-3">

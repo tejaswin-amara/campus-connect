@@ -150,7 +150,7 @@ The application can be fully configured without modifying `application.propertie
 | `MYSQLDATABASE` | Database name | `campus_events` |
 | `MYSQLUSER` | Database user | `root` |
 | `MYSQLPASSWORD` | Database password | `root` |
-| `ADMIN_PASSWORD` | Bootstrap password for admin | `admin123` |
+| `ADMIN_PASSWORD` | Bootstrap password for admin | `<secure_password>` |
 | `LOG_LEVEL` | Application logging verbosity | `DEBUG` |
 | `UPLOAD_DIR` | Directory relative to app for uploads | `uploads` |
 
@@ -162,7 +162,7 @@ On initial start, the database is populated via Flyway scripts with default cred
 
 | Role | Access | Username | Password |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `/admin/dashboard` | `admin` | *(Set via `ADMIN_PASSWORD` env var, defaults to `admin123`)* |
+| **Administrator** | `/admin/dashboard` | `<default_admin>` | *(Set via `ADMIN_PASSWORD` env var, defaults to `<secure_password>`)* |
 | **Student (General User)** | `/` | *Guest / Managed* | *Automatic / No password required* |
 
 > **Note:** The student authentication is integrated according to specific university guidelines to be strictly seamless.
