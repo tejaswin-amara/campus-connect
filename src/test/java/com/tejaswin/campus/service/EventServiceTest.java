@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.tejaswin.campus.security.SecurityAuditLogger;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -33,12 +34,16 @@ public class EventServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private SecurityAuditLogger auditLogger;
+
     private EventService eventService;
 
     @BeforeEach
     void setUp() {
         // Manual construction because EventService requires a @Value string parameter
-        eventService = new EventService(eventRepository, registrationRepository, userRepository, "test-uploads");
+        eventService = new EventService(eventRepository, registrationRepository, userRepository, auditLogger,
+                "test-uploads");
     }
 
     // ── Existing Tests ──────────────────────────────────────────────────

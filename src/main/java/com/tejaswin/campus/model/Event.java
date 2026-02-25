@@ -32,6 +32,7 @@ public class Event {
 
     @NotNull(message = "Date and Time is required")
     private LocalDateTime dateTime;
+    @Column(name = "end_date_time")
     private LocalDateTime endDateTime;
 
     @NotBlank(message = "Venue is required")
@@ -156,5 +157,10 @@ public class Event {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Event{id=" + id + ", title='" + title + "', category='" + category + "', dateTime=" + dateTime + "}";
     }
 }

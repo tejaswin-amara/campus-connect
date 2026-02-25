@@ -22,6 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // ⌘K / Ctrl+K Keyboard Shortcut → Focus Search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+    }
 });
 
 /**
@@ -118,6 +130,7 @@ function downloadICS(title, desc, dateStr, timeStr, venue) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(link.href);
 
     showToast('Event added to prep-list! (ICS Downloaded)', 'success');
 }

@@ -77,6 +77,16 @@ public class GlobalExceptionHandler {
         return "redirect:/admin/login";
     }
 
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleMissingParam(org.springframework.web.bind.MissingServletRequestParameterException exc,
+            Model model) {
+        logger.warn("Missing request parameter: {}", exc.getParameterName());
+        model.addAttribute("message", "Required parameter '" + exc.getParameterName() + "' is missing.");
+        model.addAttribute("status", HttpStatus.BAD_REQUEST.value());
+        return "error";
+    }
+
     @ExceptionHandler(Exception.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGenericException(Exception exc, Model model) {

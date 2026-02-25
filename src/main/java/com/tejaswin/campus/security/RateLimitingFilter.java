@@ -13,12 +13,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.tejaswin.campus.config.AppConfig;
 
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(RateLimitingFilter.class);
 
     private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
             .maximumSize(10_000)
@@ -51,6 +55,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             if (bucket.tryConsume(1)) {
                 filterChain.doFilter(request, response);
             } else {
+                logger.warn("AUDIT: Rate limit exceeded for IP: {} on /admin/login", ip);
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 response.getWriter().write("Too many login attempts. Please try again in 15 minutes.");
             }

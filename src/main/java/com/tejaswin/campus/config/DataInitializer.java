@@ -68,6 +68,11 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode(admin.getPassword()));
             userRepository.save(admin);
             logger.info("✅ Admin password migrated to BCrypt");
+        } else if (admin.getPassword() != null && !passwordEncoder.matches(adminPassword, admin.getPassword())) {
+            // Admin password env var changed — sync hash
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            userRepository.save(admin);
+            logger.info("✅ Admin password updated to match configured ADMIN_PASSWORD");
         }
 
         // 3. Ensure Sample Event Exists

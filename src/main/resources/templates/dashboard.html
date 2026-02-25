@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css?v=4}">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=5}">
     <script th:src="@{/js/main.js}" defer></script>
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <link rel="manifest" href="/manifest.json">
@@ -154,8 +154,10 @@
                     class="event-item animate-in"
                     th:style="'animation-delay: ' + (${stat.index < 12 ? stat.index * 0.05 : 0.55}) + 's;'">
                     <!-- Event Card -->
-                    <div class="event-card" onclick="openDetailModal(this)" th:data-id="${event.id}" role="button"
-                        tabindex="0" th:aria-label="'View details for ' + ${event.title}" th:data-title="${event.title}"
+                    <div class="event-card" onclick="openDetailModal(this)"
+                        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetailModal(this);}"
+                        th:data-id="${event.id}" role="button" tabindex="0"
+                        th:aria-label="'View details for ' + ${event.title}" th:data-title="${event.title}"
                         th:data-desc="${event.description}"
                         th:data-date="${#temporals.format(event.dateTime, 'EEE, MMM dd')}"
                         th:data-enddate="${event.endDateTime != null ? #temporals.format(event.endDateTime, 'EEE, MMM dd') : ''}"
@@ -180,7 +182,8 @@
                                     th:text="${event.category}">Category</span>
                             </div>
                             <!-- Status Badge -->
-                            <span class="status-badge"
+                            <span class="status-badge status-badge-target"
+                                th:data-status="${event.dateTime.isAfter(now)} ? 'Upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'Ongoing' : 'Past')"
                                 th:classappend="${event.dateTime.isAfter(now)} ? 'badge-upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'badge-ongoing' : 'badge-past')"
                                 th:text="${event.dateTime.isAfter(now)} ? 'Upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'Ongoing' : 'Past')">Status</span>
                         </div>
@@ -213,6 +216,32 @@
                         </div>
                     </div>
                 </div>
+            </div> <!-- Close event-grid -->
+
+            <!-- Server-Side Pagination Controls -->
+            <div th:if="${totalPages > 1}" class="d-flex justify-content-center mt-5 mb-3">
+                <nav aria-label="Event pagination">
+                    <ul class="pagination pagination-sm pagination-glass">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link shadow-sm"
+                                th:href="@{/student/dashboard(page=${currentPage - 1}, search=${searchQuery}, category=${activeCategory})}"
+                                tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item disabled d-none d-md-block">
+                            <span class="page-link border-0 bg-transparent text-muted">
+                                Page <span th:text="${currentPage + 1}">1</span> of <span
+                                    th:text="${totalPages}">1</span>
+                            </span>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link shadow-sm"
+                                th:href="@{/student/dashboard(page=${currentPage + 1}, search=${searchQuery}, category=${activeCategory})}">Next
+                                Page</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
         </main>
     </div>
 
@@ -314,7 +343,7 @@
                                         <button id="calendarBtn" class="btn btn-calendar flex-grow-0 px-4">
                                             <i class="bi bi-calendar-plus me-2"></i> Add to Calendar
                                         </button>
-                                        <a id="detailLink" href="#" target="_blank"
+                                        <a id="detailLink" href="#"
                                             class="btn btn-action flex-grow-1 d-none text-center">
                                             Register Now <i class="bi bi-arrow-right ms-2"></i>
                                         </a>
@@ -354,13 +383,6 @@
             cards.forEach(card => {
                 const title = card.querySelector('.event-title').textContent.toLowerCase();
                 const venue = card.querySelector('.bi-geo-alt').nextElementSibling.textContent.toLowerCase();
-                // Check if card is currently hidden by category filter?
-                // Ideally search should search ALL, or only filtered.
-                // Let's assume search searches within the current view or resets filter.
-                // Simple implementation: Search + current Text matching.
-
-                // For better UX: Search matches override category? Or combined?
-                // Let's stick to simple text match for now on all cards.
 
                 if (title.includes(q) || venue.includes(q)) {
                     card.style.display = 'block';
@@ -406,6 +428,7 @@
             });
 
             checkEmpty(visible);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ⏳ Status Filter
@@ -421,7 +444,7 @@
 
             cards.forEach(card => {
                 // Get status from the badge we added data-status to
-                const badge = card.querySelector('.event-status');
+                const badge = card.querySelector('.status-badge-target');
                 const cardStatus = badge ? badge.getAttribute('data-status') : '';
 
                 if (cardStatus === status) {
@@ -435,6 +458,7 @@
                 }
             });
             checkEmpty(visible);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // 🖼️ Modal Logic
@@ -506,7 +530,10 @@
             qrContainer.style.display = 'none';
 
             if (link) {
-                btnEl.href = link;
+                // Use internal tracking endpoint instead of direct external link
+                const eventId = btn.dataset.id;
+                btnEl.href = `/student/register-external/${eventId}`;
+                btnEl.target = "_blank";
                 btnEl.classList.remove('d-none');
                 btnEl.classList.add('d-block');
 

@@ -6,8 +6,9 @@ import com.tejaswin.campus.security.SecurityAuditLogger;
 import com.tejaswin.campus.service.SessionService;
 import com.tejaswin.campus.exception.EventNotFoundException;
 import com.tejaswin.campus.exception.InvalidImageException;
-import com.tejaswin.campus.config.AppConfig;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,52 +37,54 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin")
+@Validated
 public class AdminController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
-    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif");
 
     private final EventService eventService;
     private final SessionService sessionService;
-    private final SecurityAuditLogger auditLogger;
-    private final Path uploadBaseDir;
 
-    public AdminController(EventService eventService, AppConfig appConfig, SessionService sessionService,
-            SecurityAuditLogger auditLogger) {
+    public AdminController(EventService eventService, SessionService sessionService) {
         this.eventService = eventService;
         this.sessionService = sessionService;
-        this.auditLogger = auditLogger;
-        this.uploadBaseDir = Paths.get(appConfig.getUploadDir()).toAbsolutePath().normalize();
     }
 
     @GetMapping("/dashboard")
     @Transactional(readOnly = true)
-    public String adminDashboard(Model model) {
-        if (!sessionService.isAdmin()) {
-            return "redirect:/";
+    public String adminDashboard(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            Model model) {
+
+        long totalEvents = eventService.getTotalEventsCount();
+        long totalRegistrations = eventService.getTotalRegistrationsCount();
+        long upcomingEvents = eventService.getUpcomingEventsCount();
+        long ongoingEvents = eventService.getOngoingEventsCount();
+        long pastEvents = eventService.getPastEventsCount();
+
+        org.springframework.data.domain.Page<Event> eventsPage;
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+
+        if (search != null && !search.isBlank()) {
+            eventsPage = eventService.searchEventsPage(search.trim(), pageable);
+            model.addAttribute("searchQuery", search.trim());
+        } else {
+            eventsPage = eventService.findAllEventsPage(pageable);
         }
 
-        List<Event> events = eventService.findAllEvents();
-        if (events == null)
-            events = java.util.Collections.emptyList();
+        java.util.Map<Long, Long> eventRegistrationCounts = eventService
+                .getRegistrationCountsMap(eventsPage.getContent());
+        java.util.Map<String, Long> categoryCountsMap = eventService.getCategoryCounts();
 
-        // Analytics
-        model.addAttribute("totalEvents", events.size());
-
-        java.util.Map<String, Long> categoryCounts = eventService.getCategoryCounts();
-        if (categoryCounts == null)
-            categoryCounts = java.util.Collections.emptyMap();
-        model.addAttribute("categoryCounts", categoryCounts);
-
-        Long upcomingEvents = eventService.getUpcomingEventsCount();
-        if (upcomingEvents == null)
-            upcomingEvents = 0L;
+        model.addAttribute("totalEvents", totalEvents);
+        model.addAttribute("totalRegistrations", totalRegistrations);
         model.addAttribute("upcomingEvents", upcomingEvents);
-
-        Long pastEvents = eventService.getPastEventsCount();
-        if (pastEvents == null)
-            pastEvents = 0L;
+        model.addAttribute("ongoingEvents", ongoingEvents);
         model.addAttribute("pastEvents", pastEvents);
+        model.addAttribute("categoryCounts", categoryCountsMap);
+        model.addAttribute("eventRegistrationCounts", eventRegistrationCounts);
 
         // System Health
         Runtime runtime = Runtime.getRuntime();
@@ -92,7 +95,10 @@ public class AdminController {
         model.addAttribute("sysMemoryTotal", totalMemory / (1024 * 1024)); // MB
         model.addAttribute("sysCores", runtime.availableProcessors());
 
-        model.addAttribute("events", events);
+        model.addAttribute("events", eventsPage.getContent());
+        model.addAttribute("currentPage", eventsPage.getNumber());
+        model.addAttribute("totalPages", eventsPage.getTotalPages());
+        model.addAttribute("totalItems", eventsPage.getTotalElements());
         model.addAttribute("user", sessionService.getLoggedInUser());
         model.addAttribute("newEvent", new Event());
         model.addAttribute("now", LocalDateTime.now());
@@ -101,8 +107,8 @@ public class AdminController {
 
     @PostMapping("/add-event")
     @Transactional
-    public String addEvent(@RequestParam String title,
-            @RequestParam String description,
+    public String addEvent(@RequestParam @Size(max = 255, message = "Title too long") String title,
+            @RequestParam @Size(max = 2000, message = "Description too long") String description,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime,
             @RequestParam String venue,
             @RequestParam String category,
@@ -114,16 +120,22 @@ public class AdminController {
             RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
 
-        if (!sessionService.isAdmin()) {
-            return "redirect:/";
-        }
-
         if (endDateTime != null && endDateTime.isBefore(dateTime)) {
             redirectAttributes.addFlashAttribute("error", "End date cannot be before start date!");
             return "redirect:/admin/dashboard";
         }
 
-        Path newlyUploadedPath = null;
+        if (!isValidUrl(registrationLink) || !isValidUrl(responsesLink)) {
+            redirectAttributes.addFlashAttribute("error", "Invalid URL format for links!");
+            return "redirect:/admin/dashboard";
+        }
+
+        if (maxCapacity != null && maxCapacity < 1) {
+            redirectAttributes.addFlashAttribute("error", "Max capacity must be at least 1!");
+            return "redirect:/admin/dashboard";
+        }
+
+        String newlyUploadedUrl = null;
         try {
             Event event = new Event();
             event.setTitle(title);
@@ -137,10 +149,11 @@ public class AdminController {
             event.setEndDateTime(endDateTime);
 
             if (imageFile != null && !imageFile.isEmpty()) {
-                String savedUrl = saveUploadedImage(imageFile, sessionService.getLoggedInUser().getUsername());
+                String savedUrl = eventService.saveUploadedImage(imageFile,
+                        sessionService.getLoggedInUser().getUsername());
                 if (savedUrl != null) {
                     event.setImageUrl(savedUrl);
-                    newlyUploadedPath = uploadBaseDir.resolve(savedUrl.substring("/uploads/".length())).normalize();
+                    newlyUploadedUrl = savedUrl;
                 } else {
                     throw new InvalidImageException("Invalid image file. Allowed: JPG, PNG, WebP, GIF.");
                 }
@@ -150,11 +163,11 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("success", "Event added successfully!");
         } catch (Exception e) {
             // Clean up newly uploaded file if DB save fails
-            if (newlyUploadedPath != null) {
+            if (newlyUploadedUrl != null) {
                 try {
-                    Files.deleteIfExists(newlyUploadedPath);
+                    eventService.deleteImageByUrl(newlyUploadedUrl);
                     logger.warn("AUDIT: Deleted newly uploaded file due to transaction failure in addEvent: {}",
-                            newlyUploadedPath);
+                            newlyUploadedUrl);
                 } catch (Exception ex) {
                     logger.error("Failed to clean up file after transaction failure in addEvent", ex);
                 }
@@ -167,8 +180,8 @@ public class AdminController {
     @PostMapping("/edit-event")
     @Transactional
     public String editEvent(@RequestParam Long id,
-            @RequestParam String title,
-            @RequestParam String description,
+            @RequestParam @Size(max = 255, message = "Title too long") String title,
+            @RequestParam @Size(max = 2000, message = "Description too long") String description,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime,
             @RequestParam String venue,
             @RequestParam String category,
@@ -180,12 +193,18 @@ public class AdminController {
             RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
 
-        if (!sessionService.isAdmin()) {
-            return "redirect:/";
-        }
-
         if (endDateTime != null && endDateTime.isBefore(dateTime)) {
             redirectAttributes.addFlashAttribute("error", "End date cannot be before start date!");
+            return "redirect:/admin/dashboard";
+        }
+
+        if (!isValidUrl(registrationLink) || !isValidUrl(responsesLink)) {
+            redirectAttributes.addFlashAttribute("error", "Invalid URL format for links!");
+            return "redirect:/admin/dashboard";
+        }
+
+        if (maxCapacity != null && maxCapacity < 1) {
+            redirectAttributes.addFlashAttribute("error", "Max capacity must be at least 1!");
             return "redirect:/admin/dashboard";
         }
 
@@ -194,7 +213,7 @@ public class AdminController {
             throw new EventNotFoundException("Event not found with ID: " + id);
         }
 
-        Path newlyUploadedPath = null;
+        String newlyUploadedUrl = null;
         try {
             event.setTitle(title);
             event.setDescription(description);
@@ -208,26 +227,19 @@ public class AdminController {
 
             if (imageFile != null && !imageFile.isEmpty()) {
                 String oldUrl = event.getImageUrl();
-                String savedUrl = saveUploadedImage(imageFile, sessionService.getLoggedInUser().getUsername());
+                String savedUrl = eventService.saveUploadedImage(imageFile,
+                        sessionService.getLoggedInUser().getUsername());
 
                 if (savedUrl == null) {
                     throw new InvalidImageException("Invalid image file. Allowed: JPG, PNG, WebP, GIF.");
                 }
 
                 event.setImageUrl(savedUrl);
-                newlyUploadedPath = uploadBaseDir.resolve(savedUrl.substring("/uploads/".length())).normalize();
+                newlyUploadedUrl = savedUrl;
 
                 // Delete old image
-                if (oldUrl != null && oldUrl.startsWith("/uploads/")) {
-                    try {
-                        String oldFile = oldUrl.substring("/uploads/".length());
-                        Path oldPath = uploadBaseDir.resolve(oldFile).normalize();
-                        if (oldPath.startsWith(uploadBaseDir)) {
-                            Files.deleteIfExists(oldPath);
-                        }
-                    } catch (Exception e) {
-                        logger.warn("Failed to delete old image file: {}", oldUrl, e);
-                    }
+                if (oldUrl != null) {
+                    eventService.deleteImageByUrl(oldUrl);
                 }
             }
 
@@ -235,10 +247,10 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
         } catch (Exception e) {
             // Clean up newly uploaded file if DB save fails
-            if (newlyUploadedPath != null) {
+            if (newlyUploadedUrl != null) {
                 try {
-                    Files.deleteIfExists(newlyUploadedPath);
-                    logger.warn("AUDIT: Deleted newly uploaded file due to transaction failure: {}", newlyUploadedPath);
+                    eventService.deleteImageByUrl(newlyUploadedUrl);
+                    logger.warn("AUDIT: Deleted newly uploaded file due to transaction failure: {}", newlyUploadedUrl);
                 } catch (Exception ex) {
                     logger.error("Failed to clean up file after transaction failure", ex);
                 }
@@ -253,10 +265,6 @@ public class AdminController {
     public String deleteEvent(@PathVariable @NonNull Long id,
             RedirectAttributes redirectAttributes) {
 
-        if (!sessionService.isAdmin()) {
-            return "redirect:/";
-        }
-
         eventService.deleteEvent(id);
         redirectAttributes.addFlashAttribute("success", "Event deleted successfully!");
         return "redirect:/admin/dashboard";
@@ -264,9 +272,6 @@ public class AdminController {
 
     @GetMapping("/export-events")
     public ResponseEntity<byte[]> exportEvents() {
-        if (!sessionService.isAdmin()) {
-            return ResponseEntity.status(403).build();
-        }
 
         byte[] csvData = eventService.getAllEventsAsCsv();
 
@@ -277,52 +282,14 @@ public class AdminController {
                 .body(csvData);
     }
 
-    private String saveUploadedImage(MultipartFile imageFile, String username) {
-        String originalFilename = imageFile.getOriginalFilename();
-        if (originalFilename == null || originalFilename.isBlank()) {
-            return null;
-        }
-
-        String sanitizedFilename = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
-        String ext = "";
-        int i = sanitizedFilename.lastIndexOf('.');
-        if (i > 0) {
-            ext = sanitizedFilename.substring(i).toLowerCase();
-        }
-
-        if (!ALLOWED_IMAGE_EXTENSIONS.contains(ext)) {
-            auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "REJECTED_INVALID_EXTENSION");
-            return null;
-        }
-
+    private boolean isValidUrl(String url) {
+        if (url == null || url.isBlank())
+            return true;
         try {
-            String fileName = UUID.randomUUID().toString() + ext;
-            Path targetPath = uploadBaseDir.resolve(fileName).normalize();
-
-            if (!targetPath.startsWith(uploadBaseDir)) {
-                auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "REJECTED_PATH_TRAVERSAL");
-                return null;
-            }
-
-            if (!Files.exists(uploadBaseDir)) {
-                Files.createDirectories(uploadBaseDir);
-            }
-
-            if (Files.isSymbolicLink(targetPath)) {
-                auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "REJECTED_SYMLINK");
-                return null;
-            }
-
-            try (var inputStream = imageFile.getInputStream()) {
-                Files.copy(inputStream, targetPath,
-                        java.nio.file.StandardCopyOption.REPLACE_EXISTING,
-                        java.nio.file.LinkOption.NOFOLLOW_LINKS);
-            }
-            auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "SUCCESS");
-            return "/uploads/" + fileName;
-        } catch (java.io.IOException e) {
-            auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "ERROR: " + e.getMessage());
-            return null;
+            new java.net.URL(url).toURI();
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

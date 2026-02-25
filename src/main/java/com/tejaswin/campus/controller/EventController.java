@@ -39,6 +39,8 @@ public class EventController {
     public String studentDashboard(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             Model model) {
 
         User user = sessionService.getLoggedInUser();
@@ -46,22 +48,31 @@ public class EventController {
             return "redirect:/";
         }
 
-        List<Event> events;
+        org.springframework.data.domain.Page<Event> eventsPage;
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+
         if (search != null && !search.trim().isEmpty()) {
-            events = eventService.searchEvents(search);
-            model.addAttribute("searchQuery", search);
+            String sanitizedSearch = search.trim();
+            if (sanitizedSearch.length() > 200) {
+                sanitizedSearch = sanitizedSearch.substring(0, 200);
+            }
+            eventsPage = eventService.searchEventsPage(sanitizedSearch, pageable);
+            model.addAttribute("searchQuery", sanitizedSearch);
         } else if (category != null && !category.trim().isEmpty() && !"all".equalsIgnoreCase(category)) {
-            events = eventService.findEventsByCategory(category);
+            eventsPage = eventService.findEventsByCategoryPage(category, pageable);
             model.addAttribute("activeCategory", category);
         } else {
-            events = eventService.findAllEvents();
+            eventsPage = eventService.findAllEventsPage(pageable);
         }
 
-        if (events == null) {
-            events = java.util.Collections.emptyList();
+        if (eventsPage == null) {
+            eventsPage = org.springframework.data.domain.Page.empty();
         }
 
-        model.addAttribute("events", events);
+        model.addAttribute("events", eventsPage.getContent());
+        model.addAttribute("currentPage", eventsPage.getNumber());
+        model.addAttribute("totalPages", eventsPage.getTotalPages());
+        model.addAttribute("totalItems", eventsPage.getTotalElements());
         model.addAttribute("user", user);
         model.addAttribute("now", java.time.LocalDateTime.now());
         return "dashboard";
@@ -78,7 +89,7 @@ public class EventController {
 
         // Track interest for analytics
         auditLogger.logSecurityLinkClick(user.getUsername(), "REGISTER_EXTERNAL", eventId);
-        eventService.registerStudent(eventId, user.getId());
+        eventService.registerStudent(eventId, user.getId() != null ? user.getId() : 0L);
 
         Event event = eventService.findEventById(eventId);
         if (event != null && event.getRegistrationLink() != null && !event.getRegistrationLink().isEmpty()) {
@@ -100,10 +111,12 @@ public class EventController {
     }
 
     @GetMapping("/event/{id}")
-    public String eventDetail(@PathVariable Long id) {
-        if (sessionService.getLoggedInUser() == null) {
-            return "redirect:/";
+    public String eventDetail(@PathVariable Long id, Model model) {
+        Event event = eventService.findEventById(id);
+        if (event == null) {
+            return "redirect:/student/dashboard";
         }
-        return "redirect:/student/dashboard?open=" + id;
+        model.addAttribute("event", event);
+        return "event_detail";
     }
 }

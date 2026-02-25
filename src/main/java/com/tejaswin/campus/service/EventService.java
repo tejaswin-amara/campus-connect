@@ -24,10 +24,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
+import com.tejaswin.campus.security.SecurityAuditLogger;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class EventService {
-
     private static final Logger logger = LoggerFactory.getLogger(EventService.class);
 
     private final EventRepository eventRepository;
@@ -35,28 +41,34 @@ public class EventService {
     private final RegistrationRepository registrationRepository;
 
     private final UserRepository userRepository;
+    private final SecurityAuditLogger auditLogger;
 
     private final Path uploadBaseDir;
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif");
 
     /**
-     * Constructs the EventService with required repositories and resolves the base
+     * Constructs the EventService with required repositories, logger and resolves
+     * the base
      * upload directory.
      *
      * @param eventRepository        repository for events
      * @param registrationRepository repository for registrations
      * @param userRepository         repository for users
+     * @param auditLogger            logger for security events
      * @param uploadDir              configured upload directory (relative or
      *                               absolute)
      */
     public EventService(EventRepository eventRepository,
             RegistrationRepository registrationRepository,
             UserRepository userRepository,
-            @Value("${app.upload-dir:uploads}") String uploadDir) {
+            SecurityAuditLogger auditLogger,
+            @org.springframework.beans.factory.annotation.Value("${app.upload-dir:uploads}") String uploadDir) {
         this.eventRepository = eventRepository;
         this.registrationRepository = registrationRepository;
         this.userRepository = userRepository;
+        this.auditLogger = auditLogger;
         String effectiveDir = (uploadDir == null || uploadDir.isBlank()) ? "uploads" : uploadDir;
-        this.uploadBaseDir = Paths.get(effectiveDir).toAbsolutePath().normalize();
+        this.uploadBaseDir = java.nio.file.Paths.get(effectiveDir).toAbsolutePath().normalize();
     }
 
     /**
@@ -67,6 +79,11 @@ public class EventService {
     @Transactional(readOnly = true)
     public List<Event> findAllEvents() {
         return eventRepository.findAllByOrderByDateTimeDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Event> findAllEventsPage(Pageable pageable) {
+        return eventRepository.findAllByOrderByDateTimeDesc(pageable);
     }
 
     /**
@@ -111,6 +128,15 @@ public class EventService {
         return eventRepository.findByTitleContainingIgnoreCaseOrVenueContainingIgnoreCase(query.trim(), query.trim());
     }
 
+    @Transactional(readOnly = true)
+    public Page<Event> searchEventsPage(String query, Pageable pageable) {
+        if (query == null || query.trim().isEmpty()) {
+            return findAllEventsPage(pageable);
+        }
+        return eventRepository.findByTitleContainingIgnoreCaseOrVenueContainingIgnoreCase(query.trim(), query.trim(),
+                pageable);
+    }
+
     /**
      * Returns events by category ordered by start time desc.
      * If category is null/blank or 'all', returns all events.
@@ -124,6 +150,14 @@ public class EventService {
             return findAllEvents();
         }
         return eventRepository.findByCategoryOrderByDateTimeDesc(category);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Event> findEventsByCategoryPage(String category, Pageable pageable) {
+        if (category == null || category.trim().isEmpty() || "all".equalsIgnoreCase(category)) {
+            return findAllEventsPage(pageable);
+        }
+        return eventRepository.findByCategoryOrderByDateTimeDesc(category, pageable);
     }
 
     /**
@@ -180,21 +214,7 @@ public class EventService {
         // 1. Get event to find image path
         Event event = eventRepository.findById(id).orElse(null);
         if (event != null && event.getImageUrl() != null) {
-            try {
-                String imageUrl = event.getImageUrl();
-                if (imageUrl.startsWith("/uploads/")) {
-                    String filename = imageUrl.substring("/uploads/".length());
-                    Path path = uploadBaseDir.resolve(filename).normalize();
-                    if (path.startsWith(uploadBaseDir)) {
-                        Files.deleteIfExists(path);
-                        logger.info("AUDIT: Deleted image file: {}", path);
-                    } else {
-                        logger.warn("Security: Path traversal attempt prevented during deletion: {}", imageUrl);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Failed to delete image file for event ID: {}", id, e);
-            }
+            deleteImageByUrl(event.getImageUrl());
         }
 
         registrationRepository.deleteByEventId(id);
@@ -204,10 +224,18 @@ public class EventService {
 
     // Analytics
     /**
+     * @return total number of events
+     */
+    @Transactional(readOnly = true)
+    public long getTotalEventsCount() {
+        return eventRepository.count();
+    }
+
+    /**
      * @return total number of registrations across all events
      */
     @Transactional(readOnly = true)
-    public long getTotalRegistrations() {
+    public long getTotalRegistrationsCount() {
         return registrationRepository.count();
     }
 
@@ -230,6 +258,16 @@ public class EventService {
     }
 
     /**
+     * Counts events currently happening (start <= now && end >= now).
+     *
+     * @return number of ongoing events
+     */
+    @Transactional(readOnly = true)
+    public long getOngoingEventsCount() {
+        return eventRepository.countOngoingEvents(LocalDateTime.now());
+    }
+
+    /**
      * @param eventId event id
      * @return number of registrations for the event
      */
@@ -242,22 +280,26 @@ public class EventService {
      * Builds a map of eventId -> registration count for the provided events.
      * Initializes counts to zero then overlays results from an aggregate query.
      *
-     * @param events events to include
-     * @return map of counts (never null)
+     * @param events list of events to get counts for
+     * @return map of eventId -> registration count
      */
     @Transactional(readOnly = true)
     public Map<Long, Long> getRegistrationCountsMap(List<Event> events) {
         Map<Long, Long> counts = new HashMap<>();
-        // Initialize all events with 0
-        for (Event event : events) {
-            counts.put(event.getId(), 0L);
+        if (events == null || events.isEmpty())
+            return counts;
+
+        for (Event e : events) {
+            counts.put(e.getId(), 0L);
         }
-        // Single aggregate query — fixes N+1
+
         List<Object[]> results = registrationRepository.countRegistrationsGroupedByEvent();
         for (Object[] row : results) {
             Long eventId = (Long) row[0];
             Long count = (Long) row[1];
-            counts.put(eventId, count);
+            if (counts.containsKey(eventId)) {
+                counts.put(eventId, count);
+            }
         }
         return counts;
     }
@@ -280,9 +322,7 @@ public class EventService {
      */
     @Transactional(readOnly = true)
     public long getPastEventsCount() {
-        long total = eventRepository.count();
-        long upcoming = getUpcomingEventsCount();
-        return total - upcoming;
+        return eventRepository.countPastEvents(LocalDateTime.now());
     }
 
     /**
@@ -295,8 +335,10 @@ public class EventService {
         List<Event> events = findAllEvents();
         StringBuilder csv = new StringBuilder();
         // Header
-        csv.append("ID,Title,Category,Venue,Start DateTime,End DateTime,Capacity,Status\n");
+        csv.append(
+                "ID,Title,Category,Venue,Start DateTime,End DateTime,Capacity,Registration Link,Responses Link,Status\n");
 
+        LocalDateTime now = LocalDateTime.now();
         for (Event event : events) {
             csv.append(event.getId()).append(",");
             csv.append(escapeCsv(event.getTitle())).append(",");
@@ -307,11 +349,18 @@ public class EventService {
             csv.append(start != null ? start : "").append(",");
             csv.append(end != null ? end : "").append(",");
             csv.append(event.getMaxCapacity() != null ? event.getMaxCapacity() : "Unlimited").append(",");
+            csv.append(escapeCsv(event.getRegistrationLink())).append(",");
+            csv.append(escapeCsv(event.getResponsesLink())).append(",");
+
             String status;
             if (start == null) {
                 status = "Unknown";
+            } else if (start.isAfter(now)) {
+                status = "Upcoming";
+            } else if (end != null && end.isAfter(now)) {
+                status = "Ongoing";
             } else {
-                status = start.isAfter(LocalDateTime.now()) ? "Upcoming" : "Past";
+                status = "Past";
             }
             csv.append(status).append("\n");
         }
@@ -326,5 +375,78 @@ public class EventService {
             return "\"" + escaped + "\"";
         }
         return escaped;
+    }
+
+    /**
+     * Saves an uploaded image to the filesystem, sanitizing the filename
+     * and checking for allowed extensions and path traversal.
+     */
+    public String saveUploadedImage(MultipartFile imageFile, String username) {
+        String originalFilename = imageFile.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            return null;
+        }
+
+        String sanitizedFilename = originalFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String ext = "";
+        int i = sanitizedFilename.lastIndexOf('.');
+        if (i > 0) {
+            ext = sanitizedFilename.substring(i).toLowerCase();
+        }
+
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(ext)) {
+            auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "REJECTED_INVALID_EXTENSION");
+            return null;
+        }
+
+        try {
+            String fileName = UUID.randomUUID().toString() + ext;
+            Path targetPath = uploadBaseDir.resolve(fileName).normalize();
+
+            if (!targetPath.startsWith(uploadBaseDir)) {
+                auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "REJECTED_PATH_TRAVERSAL");
+                return null;
+            }
+
+            if (!Files.exists(uploadBaseDir)) {
+                Files.createDirectories(uploadBaseDir);
+            }
+
+            if (Files.isSymbolicLink(targetPath)) {
+                auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "REJECTED_SYMLINK");
+                return null;
+            }
+
+            try (var inputStream = imageFile.getInputStream()) {
+                Files.copy(inputStream, targetPath,
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                        java.nio.file.LinkOption.NOFOLLOW_LINKS);
+            }
+            auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "SUCCESS");
+            return "/uploads/" + fileName;
+        } catch (java.io.IOException e) {
+            auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "ERROR: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Deletes an image from the filesystem given its URL.
+     */
+    public void deleteImageByUrl(String imageUrl) {
+        if (imageUrl != null && imageUrl.startsWith("/uploads/")) {
+            try {
+                String filename = imageUrl.substring("/uploads/".length());
+                Path path = uploadBaseDir.resolve(filename).normalize();
+                if (path.startsWith(uploadBaseDir)) {
+                    Files.deleteIfExists(path);
+                    logger.info("AUDIT: Deleted image file: {}", path);
+                } else {
+                    logger.warn("Security: Path traversal attempt prevented during deletion: {}", imageUrl);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to delete image file: {}", imageUrl, e);
+            }
+        }
     }
 }

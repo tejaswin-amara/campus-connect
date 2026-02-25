@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -43,6 +45,14 @@ public class SecurityConfig {
                                                 .permitAll())
                                 .csrf(csrf -> csrf
                                                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                                .headers(headers -> headers
+                                                .contentTypeOptions(withDefaults())
+                                                .frameOptions(frame -> frame.deny())
+                                                .contentSecurityPolicy(csp -> csp
+                                                                .policyDirectives(
+                                                                                "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; connect-src 'self' https://api.qrserver.com;"))
+                                                .referrerPolicy(referrer -> referrer
+                                                                .policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                                 .addFilterBefore(rateLimitingFilter,
                                                 org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 

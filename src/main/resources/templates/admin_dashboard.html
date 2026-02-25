@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" th:href="@{/css/style.css?v=4}">
+    <link rel="stylesheet" th:href="@{/css/style.css?v=5}">
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
     <script th:src="@{/js/main.js}" defer></script>
     <!-- SEO & Social Meta Tags -->
@@ -128,23 +128,30 @@
                 <div class="col-lg-8">
                     <div class="row g-3 h-100">
                         <!-- Total -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="stat-card" data-icon="📅">
-                                <div class="stat-label">TOTAL EVENTS</div>
+                                <div class="stat-label">TOTAL</div>
                                 <div class="stat-number" th:data-countup="${totalEvents}">0</div>
                             </div>
                         </div>
                         <!-- Upcoming -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="stat-card" data-icon="🚀">
                                 <div class="stat-label" style="color: var(--success)">UPCOMING</div>
                                 <div class="stat-number" th:data-countup="${upcomingEvents}">0</div>
                             </div>
                         </div>
+                        <!-- Ongoing -->
+                        <div class="col-md-3">
+                            <div class="stat-card" data-icon="📡">
+                                <div class="stat-label" style="color: var(--secondary)">ONGOING</div>
+                                <div class="stat-number" th:data-countup="${ongoingEvents}">0</div>
+                            </div>
+                        </div>
                         <!-- Past -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="stat-card" data-icon="⏳">
-                                <div class="stat-label">PAST EVENTS</div>
+                                <div class="stat-label">PAST</div>
                                 <div class="stat-number" th:data-countup="${pastEvents}">0</div>
                             </div>
                         </div>
@@ -217,7 +224,7 @@
                                 </td>
                                 <td>
                                     <span class="badge-pill border-0" style="font-size: 0.7rem; padding: 0.3em 0.8em;"
-                                        th:styleappend="${event.dateTime.isAfter(now)} ? 'background: rgba(16, 185, 129, 0.15); color: var(--success);' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'background: rgba(6, 182, 212, 0.15); color: var(--secondary);' : 'background: rgba(100, 116, 139, 0.15); color: var(--text-muted);')"
+                                        th:classappend="${event.dateTime.isAfter(now)} ? 'badge-upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'badge-ongoing' : 'badge-past')"
                                         th:text="${event.dateTime.isAfter(now)} ? 'Upcoming' : (${event.endDateTime != null && event.endDateTime.isAfter(now)} ? 'Ongoing' : 'Past')">Status</span>
                                 </td>
                                 <td class="text-end pe-4">
@@ -242,18 +249,72 @@
                                     </div>
                                 </td>
                             </tr>
-                            <!-- Empty State -->
-                            <tr th:if="${#lists.isEmpty(events)}">
-                                <td colspan="7" class="text-center py-5">
-                                    <div class="py-4">
-                                        <i class="bi bi-inbox fs-1 text-muted opacity-25"></i>
-                                        <p class="text-muted mt-2">No events found. Create one to get started!</p>
+                            <tr th:if="${events == null or events.isEmpty()}">
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="bi bi-inbox fs-1 mb-2" style="opacity: 0.5;"></i>
+                                        <p class="mb-0">No events found matching your criteria.</p>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 🔄 Pagination Controls -->
+                <div class="px-4 py-3 border-top border-white-10 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3"
+                    th:if="${totalPages > 0}">
+                    <div class="text-muted small">
+                        Showing page <span class="text-white fw-bold" th:text="${currentPage + 1}">1</span> of
+                        <span class="text-white fw-bold" th:text="${totalPages}">1</span>
+                        (Total: <span th:text="${totalItems}">0</span> records)
+                    </div>
+                    <nav aria-label="Events table navigation">
+                        <ul class="pagination pagination-sm mb-0 admin-pagination custom-pagination">
+                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                <a class="page-link border-0"
+                                    th:href="@{/admin/dashboard(page=${currentPage - 1}, search=${searchQuery})}"
+                                    tabindex="-1" aria-disabled="true">Previous</a>
+                            </li>
+                            <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" class="page-item"
+                                th:classappend="${currentPage == pageNum} ? 'active'">
+                                <a class="page-link border-0"
+                                    th:href="@{/admin/dashboard(page=${pageNum}, search=${searchQuery})}"
+                                    th:text="${pageNum + 1}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                                <a class="page-link border-0"
+                                    th:href="@{/admin/dashboard(page=${currentPage + 1}, search=${searchQuery})}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Server-Side Pagination Controls -->
+            <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4 mb-2 px-3">
+                <span class="text-muted small">
+                    Showing page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+                    (<span th:text="${totalItems}">0</span> total events)
+                </span>
+                <nav aria-label="Event pagination">
+                    <ul class="pagination pagination-sm pagination-glass mb-0">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link shadow-sm"
+                                th:href="@{/admin/dashboard(page=${currentPage - 1}, search=${searchQuery})}"
+                                tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${currentPage == i} ? 'active'">
+                            <a class="page-link shadow-sm"
+                                th:href="@{/admin/dashboard(page=${i}, search=${searchQuery})}" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link shadow-sm"
+                                th:href="@{/admin/dashboard(page=${currentPage + 1}, search=${searchQuery})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </main>
     </div>
@@ -269,80 +330,91 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close Create Event Modal"></button>
                 </div>
-                <div class="modal-body custom-scrollbar">
+                <div class="modal-body custom-scrollbar px-4 pb-4">
                     <form th:action="@{/admin/add-event}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-                        <div class="mb-3">
-                            <label for="addTitle" class="form-label modal-label">TITLE</label>
-                            <input type="text" class="form-control modal-input" name="title" id="addTitle"
-                                placeholder="Enter title" required>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="addCategory" class="form-label modal-label">CATEGORY</label>
-                                <select class="form-select modal-input" name="category" id="addCategory" required>
-                                    <option value="Technical">Technical</option>
-                                    <option value="Cultural">Cultural</option>
-                                    <option value="Sports">Sports</option>
-                                    <option value="Workshop">Workshop</option>
-                                    <option value="Seminar">Seminar</option>
-                                </select>
+                        <!-- Section: Basic Info -->
+                        <div class="mb-4">
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">BASIC INFORMATION</div>
+                            <div class="mb-3">
+                                <label for="addTitle" class="form-label modal-label">EVENT TITLE</label>
+                                <input type="text" class="form-control modal-input" name="title" id="addTitle"
+                                    placeholder="e.g. Annual Tech Symposium" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="addVenue" class="form-label modal-label">VENUE</label>
-                                <input type="text" class="form-control modal-input" name="venue" id="addVenue"
-                                    placeholder="Enter venue" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="addDesc" class="form-label modal-label">DESCRIPTION</label>
-                            <textarea class="form-control modal-input" name="description" id="addDesc"
-                                placeholder="Enter details..." style="height: 100px" required></textarea>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label for="addStart" class="form-label modal-label">START DATE & TIME</label>
-                                <input type="datetime-local" class="form-control modal-input" name="dateTime"
-                                    id="addStart" required>
-                            </div>
-                            <div class="col-6">
-                                <label for="addEnd" class="form-label modal-label">END DATE & TIME</label>
-                                <input type="datetime-local" class="form-control modal-input" name="endDateTime"
-                                    id="addEnd">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="addCategory" class="form-label modal-label">CATEGORY</label>
+                                    <select class="form-select modal-input" name="category" id="addCategory" required>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Cultural">Cultural</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Workshop">Workshop</option>
+                                        <option value="Seminar">Seminar</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="addVenue" class="form-label modal-label">VENUE</label>
+                                    <input type="text" class="form-control modal-input" name="venue" id="addVenue"
+                                        placeholder="e.g. Auditorium A1" required>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="addRegLink" class="form-label modal-label">REGISTRATION LINK</label>
-                            <input type="url" class="form-control modal-input" name="registrationLink" id="addRegLink"
-                                placeholder="https://...">
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
+                        <!-- Section: Schedule & Capacity -->
+                        <div class="mb-4">
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">SCHEDULE & CAPACITY</div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label for="addStart" class="form-label modal-label">START DATE & TIME</label>
+                                    <input type="datetime-local" class="form-control modal-input" name="dateTime"
+                                        id="addStart" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="addEnd" class="form-label modal-label">END DATE & TIME</label>
+                                    <input type="datetime-local" class="form-control modal-input" name="endDateTime"
+                                        id="addEnd">
+                                </div>
+                            </div>
+                            <div class="mb-3">
                                 <label for="addCapacity" class="form-label modal-label">MAX CAPACITY</label>
                                 <input type="number" class="form-control modal-input" name="maxCapacity"
-                                    id="addCapacity" min="1" placeholder="Unlimited">
-                            </div>
-                            <div class="col-6">
-                                <label for="addResLink" class="form-label modal-label">RESPONSES LINK</label>
-                                <input type="url" class="form-control modal-input" name="responsesLink" id="addResLink"
-                                    placeholder="https://...">
+                                    id="addCapacity" min="1" placeholder="Leave blank for unlimited">
                             </div>
                         </div>
 
+                        <!-- Section: Links & Description -->
                         <div class="mb-4">
-                            <label class="form-label modal-label d-block text-start">EVENT BANNER</label>
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">LINKS & DESCRIPTION</div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="addRegLink" class="form-label modal-label">REGISTRATION LINK</label>
+                                    <input type="url" class="form-control modal-input" name="registrationLink"
+                                        id="addRegLink" placeholder="https://forms.gle/...">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="addResLink" class="form-label modal-label">RESPONSES LINK</label>
+                                    <input type="url" class="form-control modal-input" name="responsesLink"
+                                        id="addResLink" placeholder="https://docs.google/...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addDesc" class="form-label modal-label">DESCRIPTION</label>
+                                <textarea class="form-control modal-input" name="description" id="addDesc"
+                                    placeholder="Provide event details, speakers, or requirements..."
+                                    style="height: 120px" required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Section: Media -->
+                        <div class="mb-4">
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">EVENT BANNER</div>
                             <div class="upload-zone" id="createUploadZone">
                                 <i class="bi bi-cloud-arrow-up fs-2 upload-icon"></i>
                                 <span class="upload-text fw-bold">Drag & drop or click to browse</span>
                                 <span class="upload-hint">PNG, JPG, WEBP — max 5MB</span>
                                 <input type="file" class="d-none file-input" name="imageFile" id="createImageFile"
-                                    accept="image/*" hidden>
+                                    accept="image/*">
                             </div>
                             <div class="upload-preview mt-3" id="createPreviewBox" style="display: none;">
                                 <img id="createPreviewImg" src="" alt="Preview">
@@ -354,9 +426,10 @@
                             </div>
                         </div>
 
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-action w-100 justify-content-center">Create
-                                Event</button>
+                        <div class="d-grid pt-2">
+                            <button type="submit" class="btn btn-action w-100 justify-content-center p-3 fs-6">
+                                <i class="bi bi-calendar-plus me-2"></i> Create Event
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -375,81 +448,92 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close Edit Event Modal"></button>
                 </div>
-                <div class="modal-body custom-scrollbar">
+                <div class="modal-body custom-scrollbar px-4 pb-4">
                     <form th:action="@{/admin/edit-event}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <input type="hidden" id="editId" name="id">
 
-                        <div class="mb-3">
-                            <label for="editTitle" class="form-label modal-label">TITLE</label>
-                            <input type="text" class="form-control modal-input" id="editTitle" name="title"
-                                placeholder="Enter title" required>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="editCategory" class="form-label modal-label">CATEGORY</label>
-                                <select class="form-select modal-input" id="editCategory" name="category" required>
-                                    <option value="Technical">Technical</option>
-                                    <option value="Cultural">Cultural</option>
-                                    <option value="Sports">Sports</option>
-                                    <option value="Workshop">Workshop</option>
-                                    <option value="Seminar">Seminar</option>
-                                </select>
+                        <!-- Section: Basic Info -->
+                        <div class="mb-4">
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">BASIC INFORMATION</div>
+                            <div class="mb-3">
+                                <label for="editTitle" class="form-label modal-label">EVENT TITLE</label>
+                                <input type="text" class="form-control modal-input" id="editTitle" name="title"
+                                    placeholder="Enter title" required>
                             </div>
-                            <div class="col-md-6">
-                                <label for="editVenue" class="form-label modal-label">VENUE</label>
-                                <input type="text" class="form-control modal-input" id="editVenue" name="venue"
-                                    placeholder="Enter venue" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editDesc" class="form-label modal-label">DESCRIPTION</label>
-                            <textarea class="form-control modal-input" id="editDesc" name="description"
-                                placeholder="Enter details..." style="height: 100px" required></textarea>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label for="editDateTime" class="form-label modal-label">START DATE & TIME</label>
-                                <input type="datetime-local" class="form-control modal-input" id="editDateTime"
-                                    name="dateTime" required>
-                            </div>
-                            <div class="col-6">
-                                <label for="editEndDateTime" class="form-label modal-label">END DATE & TIME</label>
-                                <input type="datetime-local" class="form-control modal-input" id="editEndDateTime"
-                                    name="endDateTime">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="editCategory" class="form-label modal-label">CATEGORY</label>
+                                    <select class="form-select modal-input" id="editCategory" name="category" required>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Cultural">Cultural</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Workshop">Workshop</option>
+                                        <option value="Seminar">Seminar</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editVenue" class="form-label modal-label">VENUE</label>
+                                    <input type="text" class="form-control modal-input" id="editVenue" name="venue"
+                                        placeholder="Enter venue" required>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="editLink" class="form-label modal-label">REGISTRATION LINK</label>
-                            <input type="url" class="form-control modal-input" id="editLink" name="registrationLink"
-                                placeholder="https://...">
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
+                        <!-- Section: Schedule & Capacity -->
+                        <div class="mb-4">
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">SCHEDULE & CAPACITY</div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label for="editDateTime" class="form-label modal-label">START DATE & TIME</label>
+                                    <input type="datetime-local" class="form-control modal-input" id="editDateTime"
+                                        name="dateTime" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="editEndDateTime" class="form-label modal-label">END DATE & TIME</label>
+                                    <input type="datetime-local" class="form-control modal-input" id="editEndDateTime"
+                                        name="endDateTime">
+                                </div>
+                            </div>
+                            <div class="mb-3">
                                 <label for="editCapacity" class="form-label modal-label">MAX CAPACITY</label>
                                 <input type="number" class="form-control modal-input" id="editCapacity"
-                                    name="maxCapacity" min="1" placeholder="Unlimited">
-                            </div>
-                            <div class="col-6">
-                                <label for="editResponsesLink" class="form-label modal-label">RESPONSES LINK</label>
-                                <input type="url" class="form-control modal-input" id="editResponsesLink"
-                                    name="responsesLink" placeholder="https://...">
+                                    name="maxCapacity" min="1" placeholder="Leave blank for unlimited">
                             </div>
                         </div>
 
+                        <!-- Section: Links & Description -->
                         <div class="mb-4">
-                            <label class="form-label modal-label d-block text-start">CHANGE BANNER (OPTIONAL)</label>
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">LINKS & DESCRIPTION</div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="editLink" class="form-label modal-label">REGISTRATION LINK</label>
+                                    <input type="url" class="form-control modal-input" id="editLink"
+                                        name="registrationLink" placeholder="https://forms.gle/...">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editResponsesLink" class="form-label modal-label">RESPONSES LINK</label>
+                                    <input type="url" class="form-control modal-input" id="editResponsesLink"
+                                        name="responsesLink" placeholder="https://docs.google/...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDesc" class="form-label modal-label">DESCRIPTION</label>
+                                <textarea class="form-control modal-input" id="editDesc" name="description"
+                                    placeholder="Enter details..." style="height: 120px" required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Section: Media -->
+                        <div class="mb-4">
+                            <div class="text-secondary small fw-bold mb-3 tracking-widest">CHANGE BANNER (OPTIONAL)
+                            </div>
                             <div class="upload-zone" id="editUploadZone">
                                 <i class="bi bi-image fs-2 upload-icon"></i>
                                 <span class="upload-text fw-bold">Click to upload new image</span>
                                 <span class="upload-hint">PNG, JPG, WEBP — max 5MB</span>
                                 <input type="file" class="d-none file-input" name="imageFile" id="editImageFile"
-                                    accept="image/*" hidden>
+                                    accept="image/*">
                             </div>
                             <div class="upload-preview mt-3" id="editPreviewBox" style="display: none;">
                                 <img id="editPreviewImg" src="" alt="Preview">
@@ -461,9 +545,10 @@
                             </div>
                         </div>
 
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-action w-100 justify-content-center">Update
-                                Event</button>
+                        <div class="d-grid pt-2">
+                            <button type="submit" class="btn btn-action w-100 justify-content-center p-3 fs-6">
+                                <i class="bi bi-check-circle me-2"></i> Update Event
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -495,6 +580,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script th:inline="javascript">
         // 📱 Sidebar Toggle Function
@@ -505,14 +591,31 @@
             overlay.classList.toggle('show');
         }
 
-        // 🔍 Search Functionality
-        document.getElementById('searchInput').addEventListener('input', function () {
+        // 🔍 Search Functionality & Shortcuts
+        const searchInput = document.getElementById('searchInput');
+
+        // Command+K or Ctrl+K to focus search
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        searchInput.addEventListener('input', function () {
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('#eventsTable tbody tr');
 
             rows.forEach(row => {
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
+                // Search across title, category, and venue
+                const titleElem = row.querySelector('td:nth-child(2)');
+                const title = titleElem ? titleElem.textContent.toLowerCase() : '';
+                const category = row.getAttribute('data-category')?.toLowerCase() || '';
+                const venueElem = row.querySelector('td:nth-child(5)');
+                const venue = venueElem ? venueElem.textContent.toLowerCase() : '';
+
+                const matches = title.includes(filter) || category.includes(filter) || venue.includes(filter);
+                row.style.display = matches ? '' : 'none';
             });
         });
 
@@ -527,8 +630,8 @@
             let rows = document.querySelectorAll('#eventsTable tbody tr');
             rows.forEach(row => {
                 let rowCategory = row.getAttribute('data-category');
-                // Handle empty rows or rows without category (like the 'No events found' row)
-                if (!rowCategory) return;
+                // Handle empty rows
+                if (row.querySelector('td[colspan]')) return;
 
                 if (category === 'all' || rowCategory === category) {
                     row.style.display = '';
@@ -550,7 +653,7 @@
             rows.forEach(row => {
                 let rowStatus = row.getAttribute('data-status');
                 // Handle empty rows
-                if (!rowStatus) return;
+                if (row.querySelector('td[colspan]')) return;
 
                 if (rowStatus === status) {
                     row.style.display = '';
@@ -644,8 +747,10 @@
                 });
             }
 
+            // 📊 Stat Number Count-Up Animation
+            const counters = document.querySelectorAll('[data-countup]');
             counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target') || 0;
+                const target = +counter.getAttribute('data-countup') || 0;
                 if (target <= 0) { counter.textContent = 0; return; }
                 const duration = 1000;
                 const start = performance.now();

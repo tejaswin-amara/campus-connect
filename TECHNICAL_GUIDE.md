@@ -39,6 +39,7 @@ The application follows a standard **Model-View-Controller (MVC)** architecture 
 ### 3.2 Image Handling
 -   **Storage**: Images are stored in the server's local file system under `uploads/`.
 -   **Serving**: Spring Boot resource handler maps `/uploads/**` to the file system directory.
+-   **Handling & Security**: Image upload and sanitization logic is strictly isolated in `EventService.java` to block path traversal, apply UUID names, and enforce extension whitelists (`jpg, png, webp, gif`).
 -   **Cleanup**: The `EventService.deleteEvent` method automatically deletes the corresponding image file to prevent orphan files.
 
 ### 3.3 Data Integrity & Validation

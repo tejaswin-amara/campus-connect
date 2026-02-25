@@ -53,7 +53,9 @@ class EventControllerTest {
     void showStudentDashboard_ShouldReturnDashboardWithEvents() throws Exception {
         Event event = new Event();
         event.setDateTime(java.time.LocalDateTime.now().plusDays(1));
-        when(eventService.findAllEvents()).thenReturn(List.of(event));
+        org.springframework.data.domain.Page<Event> page = new org.springframework.data.domain.PageImpl<>(
+                List.of(event));
+        when(eventService.findAllEventsPage(org.mockito.ArgumentMatchers.any())).thenReturn(page);
 
         mockMvc.perform(get("/student/dashboard"))
                 .andExpect(status().isOk())
@@ -65,7 +67,10 @@ class EventControllerTest {
     void searchEvents_ShouldReturnFilteredEvents() throws Exception {
         Event event = new Event();
         event.setDateTime(java.time.LocalDateTime.now().plusDays(1));
-        when(eventService.searchEvents("spring")).thenReturn(List.of(event));
+        org.springframework.data.domain.Page<Event> page = new org.springframework.data.domain.PageImpl<>(
+                List.of(event));
+        when(eventService.searchEventsPage(org.mockito.ArgumentMatchers.eq("spring"),
+                org.mockito.ArgumentMatchers.any())).thenReturn(page);
 
         mockMvc.perform(get("/student/dashboard").param("search", "spring"))
                 .andExpect(status().isOk())
@@ -77,7 +82,10 @@ class EventControllerTest {
     void filterEvents_ShouldReturnCategorizedEvents() throws Exception {
         Event event = new Event();
         event.setDateTime(java.time.LocalDateTime.now().plusDays(1));
-        when(eventService.findEventsByCategory("tech")).thenReturn(List.of(event));
+        org.springframework.data.domain.Page<Event> page = new org.springframework.data.domain.PageImpl<>(
+                List.of(event));
+        when(eventService.findEventsByCategoryPage(org.mockito.ArgumentMatchers.eq("tech"),
+                org.mockito.ArgumentMatchers.any())).thenReturn(page);
 
         mockMvc.perform(get("/student/dashboard").param("category", "tech"))
                 .andExpect(status().isOk())
@@ -86,10 +94,15 @@ class EventControllerTest {
     }
 
     @Test
-    void showEventDetails_WithValidId_ShouldRedirectToDashboardWithOpenParam() throws Exception {
+    void showEventDetails_WithValidId_ShouldReturnEventDetailTemplate() throws Exception {
+        Event event = new Event();
+        event.setId(1L);
+        when(eventService.findEventById(1L)).thenReturn(event);
+
         mockMvc.perform(get("/student/event/1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/student/dashboard?open=1"));
+                .andExpect(status().isOk())
+                .andExpect(view().name("event_detail"))
+                .andExpect(model().attributeExists("event"));
     }
 
     @Test

@@ -106,9 +106,39 @@
     --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
 
     --dur-micro: 150ms;
-    --dur-component: 250ms;
     --dur-overlay: 350ms;
     --dur-complex: 500ms;
+
+    /* 📐 Layout Variables */
+    --sidebar-width: 260px;
+    --mobile-header-height: 64px;
+    --tr-fast: 200ms ease;
+    --tr-smooth: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+}
+
+.tracking-widest {
+    letter-spacing: 0.15em;
+}
+
+.modal-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.modal-input {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--border-glass) !important;
+    color: white !important;
+    padding: 0.8rem 1rem !important;
+}
+
+.modal-input:focus {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -587,6 +617,25 @@ body {
     /* var(--cat-seminar) */
     color: var(--cat-seminar);
     border-color: rgba(236, 72, 153, 0.3);
+}
+
+/* Event Status Badges */
+.badge-upcoming {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badge-ongoing {
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--secondary);
+    border-color: rgba(6, 182, 212, 0.3);
+}
+
+.badge-past {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--text-muted);
+    border-color: rgba(100, 116, 139, 0.3);
 }
 
 /* 📋 Admin Data Table (Phase 2 Spec) */
@@ -1536,6 +1585,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .card-title {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 2.8em;
@@ -1610,4 +1660,103 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 td.col-date {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   UI/UX IMPROVEMENTS — Feb 2026
+   ========================================================================= */
+
+/* 1. Smooth page fade-in (eliminates white→dark flash) */
+body {
+    animation: pageIn 0.4s ease both;
+}
+
+@keyframes pageIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* 2. Card "View Details" button hover glow + arrow slide */
+.event-card .btn-action {
+    width: auto;
+    height: auto;
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    color: var(--accent-light, #a5b4fc);
+    padding: 0.5rem 1rem;
+    border-radius: var(--r-md);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all var(--dur-fast) var(--ease);
+    overflow: hidden;
+}
+
+.event-card .btn-action:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+    transform: none;
+    /* override generic btn-action hover */
+}
+
+.event-card .btn-action i {
+    transition: transform var(--dur-fast) var(--ease);
+}
+
+.event-card .btn-action:hover i {
+    transform: translateX(4px);
+}
+
+/* 3. Mobile grid fallback for narrow screens (< 400px) */
+@media (max-width: 400px) {
+    .event-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* 4. Custom scrollbar for modal panels */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(123, 111, 255, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(123, 111, 255, 0.3);
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(123, 111, 255, 0.5);
+}
+
+/* 5. Ongoing badge pulse animation */
+.badge-ongoing {
+    animation: ongoingPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes ongoingPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(15, 217, 122, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(15, 217, 122, 0);
+    }
 }
