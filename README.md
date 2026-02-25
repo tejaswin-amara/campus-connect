@@ -196,7 +196,7 @@ docker run -p 9090:9090 \
 | `MYSQLUSER` | Database user | `root` |
 | `MYSQLPASSWORD` | Database password | `root` |
 | `ADMIN_PASSWORD` | Bootstrap admin password | `admin123` |
-| `LOG_LEVEL` | Application logging verbosity | `DEBUG` |
+| `LOG_LEVEL` | Application logging verbosity | `DEBUG` *(use `INFO` or `WARN` in production)* |
 | `UPLOAD_DIR` | Upload directory path | `uploads` |
 
 ---
@@ -207,7 +207,7 @@ On first start, the database is populated via Flyway migrations with the followi
 
 | Role | Portal | Username | Password |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `/admin/dashboard` | `admin` | `admin123` *(override via `ADMIN_PASSWORD`)* |
+| **Administrator** | `/admin/dashboard` | `admin` | *Set via `ADMIN_PASSWORD` env var* |
 | **Student** | `/` | — | *No login required (seamless access)* |
 
 > **⚠️ Important:** Change the default admin password in production by setting the `ADMIN_PASSWORD` environment variable.

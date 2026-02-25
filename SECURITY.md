@@ -16,8 +16,8 @@ If you discover a security vulnerability in CampusConnect, please report it resp
 Instead, please email the maintainer directly:
 
 - **Contact:** Tejaswin Amara
+- **Email:** TejaswinAmara1@duck.com
 - **Subject line:** `[SECURITY] CampusConnect — <brief description>`
-
 ### What to Include
 
 - Description of the vulnerability

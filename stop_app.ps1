@@ -5,8 +5,7 @@ $port = 9090
 Write-Host "Attempting to stop application running on port $port..." -ForegroundColor Cyan
 
 # Find process ID listening on the configured port
-$netstatOutput = netstat -ano | findstr ":$port"
-
+$netstatOutput = netstat -ano | findstr /R ":$port\b"
 if (-not $netstatOutput) {
     Write-Warning "No process found running on port $port. The application might already be stopped."
     exit
