@@ -34,9 +34,6 @@ RUN mkdir -p uploads && chown -R appuser:appgroup /app/uploads
 # Set upload directory environment variable explicitely
 ENV UPLOAD_DIR=/app/uploads
 
-# Expose volume for persistent images on platforms like Railway
-VOLUME /app/uploads
-
 USER appuser
 
 # Expose the configurable port (default 9090)
