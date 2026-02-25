@@ -1,64 +1,122 @@
-# Project Structure Overview
+# 📂 Project Structure
 
-This document provides a detailed breakdown of the **Campus Event Manager** codebase, organized by responsibility and layer.
+This document provides a detailed breakdown of the **CampusConnect** codebase, organized by responsibility and layer.
 
-## 📂 Project Root
-- `pom.xml`: Maven configuration, dependencies (Spring Boot, JPA, MySQL, etc.), and build settings.
-- `README.md` & `TECHNICAL_GUIDE.md`: Project documentation and setup instructions.
-- `run_app.ps1` / `stop_app.ps1`: Convenience scripts for starting and stopping the application locally.
-- `uploads/`: Local directory where event images are stored after being uploaded via the Admin Dashboard.
+## Project Root
+
+| File / Directory | Purpose |
+| :--- | :--- |
+| `pom.xml` | Maven configuration, dependencies, and build settings |
+| `Dockerfile` | Multi-stage Docker build (build + runtime) |
+| `docker-compose.yml` | Full-stack local development (MySQL + App) |
+| `run_app.ps1` / `stop_app.ps1` | PowerShell convenience scripts for local dev |
+| `README.md` | Project overview, setup, and deployment guide |
+| `TECHNICAL_GUIDE.md` | In-depth architecture and implementation details |
+| `CONTRIBUTING.md` | Contributor workflow and guidelines |
+| `SECURITY.md` | Responsible disclosure policy |
+| `LICENSE` | MIT License |
 
 ---
 
 ## 📦 Backend (`src/main/java/com/tejaswin/campus`)
-The Java source code is organized into a clean 3-tier architecture:
+
+The Java source code follows a clean 3-tier architecture:
 
 ### 🧩 Models (`/model`)
+
 Entities representing the database schema.
-- `User.java`: Defines Admin and Student users with role-based access.
-- `Event.java`: Main entity for campus events (title, date, venue, category, etc.).
-- `Registration.java`: Links users to events to track interest and analytics.
+
+- `User.java` — Admin and Student users with role-based access.
+- `Event.java` — Main event entity (title, date, venue, category, image, capacity).
+- `Registration.java` — Links users to events for interest tracking and analytics.
 
 ### 💾 Repositories (`/repository`)
-JPA Interfaces for database communication and complex query derivation.
-- `UserRepository`, `EventRepository`, `RegistrationRepository`.
+
+JPA interfaces for database communication.
+
+- `UserRepository.java` — User queries and lookups.
+- `EventRepository.java` — Event CRUD and filtered queries.
+- `RegistrationRepository.java` — Registration tracking and analytics.
 
 ### ⚙️ Services (`/service`)
+
 Business logic layer.
-- `EventService.java`: Handles CSV exports, image cleanup logic, N+1 query optimization, and event registration.
-- `UserService.java`: Handles user authentication and role management.
+
+- `EventService.java` — CSV exports, image handling, N+1 query optimization, event registration.
+- `UserService.java` — User authentication, role management, BCrypt hashing.
+- `RegistrationService.java` — Event registration logic with circuit breaker resilience.
 
 ### 🎮 Controllers (`/controller`)
-HTTP request handlers.
-- `AuthController.java`: Manages Login/Logout for both Students and Admins.
-- `EventController.java`: Manages the Student Dashboard and event engagement.
-- `AdminController.java`: Manages the Admin Dashboard (CRUD, Analytics, Exports).
 
-### 🛠️ Configuration & Core
-- `config/WebMvcConfig.java`: Configures static resource paths for external file access (images).
-- `exception/GlobalExceptionHandler.java`: Centralized error handling for file size limits and 404s.
-- `CampusEventManagerApplication.java`: The Spring Boot entry point.
+HTTP request handlers.
+
+- `AuthController.java` — Login/Logout for Students and Admins.
+- `EventController.java` — Student Dashboard and event engagement.
+- `AdminController.java` — Admin Dashboard (CRUD, Analytics, CSV Exports).
+
+### 🔒 Security (`/security`)
+
+- `SecurityConfig.java` — Spring Security filter chain, CSRF, session, and role-based access configuration.
+- `RateLimitingFilter.java` — Bucket4j-based rate limiting for login endpoints.
+
+### 🛠️ Configuration (`/config`)
+
+- `WebMvcConfig.java` — Static resource paths for external file access (uploads).
+- `CacheConfig.java` — Caffeine cache configuration.
+- `ResilienceConfig.java` — Resilience4j circuit breaker setup.
+- `OpenApiConfig.java` — Swagger/OpenAPI documentation configuration.
+
+### ⚠️ Exception Handling (`/exception`)
+
+- `GlobalExceptionHandler.java` — Centralized error handling (file size limits, 404s, general errors).
+- `EventNotFoundException.java` — Custom exception for missing events.
+- `RegistrationException.java` — Custom exception for registration failures.
+
+### 🚀 Application Entry Point
+
+- `CampusEventManagerApplication.java` — Spring Boot main class.
 
 ---
 
 ## 🎨 Frontend & Resources (`src/main/resources`)
 
 ### 🏙️ Templates (`/templates`)
-Thymeleaf HTML templates (Dynamic Content).
-- `dashboard.html`: Main UI for students to view/interact with events.
-- `admin_dashboard.html`: Management console with real-time analytics.
-- `admin_login.html`: Secure administrative entry point.
-- `error.html`: Polished, animated fallback page for application errors.
+
+Thymeleaf HTML templates with dynamic content:
+
+| Template | Purpose |
+| :--- | :--- |
+| `dashboard.html` | Student-facing event listing and interaction |
+| `admin_dashboard.html` | Admin management console with real-time analytics |
+| `admin_login.html` | Secure administrative login page |
+| `event_detail.html` | Individual event detail view |
+| `error.html` | Polished, animated error fallback page |
 
 ### 🛠️ Static Assets (`/static`)
-- `css/style.css`: Core design system (Glassmorphism, Dark Theme, Animations).
-- `js/`: Frontend logic for search, category filtering, and Chart.js integration.
-- `sw.js` & `manifest.json`: Progressive Web App (PWA) configuration for offline use and mobile installation.
 
-### 📝 Properties
-- `application.properties`: Main config for database, server ports, and file upload constraints.
+- `css/style.css` — Core design system (Glassmorphism, Dark Theme, Micro-Animations).
+- `js/main.js` — Frontend logic for search, filtering, and Chart.js integration.
+- `favicon.svg` — Application favicon.
+- `manifest.json` & `sw.js` — Progressive Web App (PWA) configuration for offline support and mobile install.
+
+### 📝 Configuration
+
+- `application.properties` — Server port, database, session, Flyway, Resilience4j, and upload settings.
+
+### 🗂️ Database Migrations (`/db/migration`)
+
+- Flyway `.sql` scripts for deterministic schema versioning.
 
 ---
 
 ## 🧪 Tests (`src/test/java`)
-- `EventServiceTest.java`: JUnit/Mockito suites verifying critical business logic without requiring a live database.
+
+- `EventServiceTest.java` — JUnit 5 / Mockito suites verifying critical business logic without a live database.
+
+---
+
+## 🔧 CI/CD (`.github`)
+
+- `workflows/ci.yml` — GitHub Actions CI pipeline (build + test with MySQL service container).
+- `ISSUE_TEMPLATE/` — Bug report and feature request templates.
+- `PULL_REQUEST_TEMPLATE.md` — Standardized PR checklist.

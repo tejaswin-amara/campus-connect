@@ -4,7 +4,7 @@ $port = 9090
 
 Write-Host "Attempting to stop application running on port $port..." -ForegroundColor Cyan
 
-# Find process ID listening on port 8080
+# Find process ID listening on the configured port
 $netstatOutput = netstat -ano | findstr ":$port"
 
 if (-not $netstatOutput) {

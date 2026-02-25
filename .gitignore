@@ -44,6 +44,10 @@ uploads/
 test_results.txt
 *.log
 logs/
+cookies.txt
+dashboard_output.html
+mvnwDebug
+mvnwDebug.cmd
 
 # ==============================================================================
 # Environment & Local Configuration

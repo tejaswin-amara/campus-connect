@@ -17,8 +17,8 @@ Before you start contributing, please ensure you have:
 ### 1. Fork and Clone
 Fork the repository and clone it to your local machine:
 ```bash
-git clone https://github.com/tejaswin-amara/campus-event-manager.git
-cd campus-event-manager
+git clone https://github.com/tejaswin-amara/campus-connect.git
+cd campus-connect
 ```
 
 ### 2. Create a Topic Branch
