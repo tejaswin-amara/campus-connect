@@ -558,10 +558,57 @@ body {
 }
 
 /* 📊 Stat Cards */
-.stat-card.glass-card {
+.stat-card {
+    background: var(--bg-1);
     border: 1px solid rgba(255, 255, 255, 0.04);
     border-top: 1px solid rgba(255, 255, 255, 0.07);
-    /* Inner top highlight */
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all var(--dur-component) var(--ease-standard);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card::after {
+    content: attr(data-icon);
+    position: absolute;
+    right: -10%;
+    bottom: -20%;
+    font-size: 8rem;
+    opacity: 0.03;
+    pointer-events: none;
+    transform: rotate(-15deg);
+    transition: all var(--dur-complex) var(--ease-standard);
+}
+
+.stat-card:hover::after {
+    opacity: 0.06;
+    transform: rotate(0) scale(1.1);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -0.02em;
 }
 
 /* Badges */
