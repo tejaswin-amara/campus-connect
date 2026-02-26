@@ -262,16 +262,16 @@
                 <div class="modal-body p-0 h-100">
                     <div class="row g-0 h-100">
                         <!-- Left Column: Poster Image -->
-                        <div
-                            class="col-lg-5 bg-dark position-relative d-flex justify-content-center align-items-center">
+                        <div class="col-lg-5 bg-black position-relative"
+                            style="display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 300px;">
                             <!-- Loading Placeholder or Fallback icon -->
                             <div
                                 class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center z-0">
                                 <i class="bi bi-image text-muted opacity-25 fs-1"></i>
                             </div>
-                            <img id="detailImg" src="" class="position-relative w-100 h-100 z-1"
-                                style="object-fit: contain; display: none;"
-                                onerror="this.onerror=null; this.src='/images/logo.png'; this.style.objectFit='contain'; this.classList.add('opacity-50', 'p-5');">
+                            <img id="detailImg" src="" class="position-relative z-1"
+                                style="display: none; max-width: 100%; max-height: 100%; width: auto; height: auto; background-color: #ffffff;"
+                                onerror="this.onerror=null; this.src='/images/logo.png'; this.classList.add('opacity-50', 'p-5');">
                         </div>
 
                         <!-- Right Column: Details -->
