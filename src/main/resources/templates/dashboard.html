@@ -281,10 +281,10 @@
                 </button>
 
                 <div class="modal-body p-0 h-100">
-                    <div class="row g-0 h-100">
+                    <div class="row g-0 h-100 d-flex flex-column flex-lg-row">
                         <!-- Left Column: Poster Image -->
-                        <div class="col-lg-5 bg-black position-relative"
-                            style="display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 300px;">
+                        <div class="col-lg-5 bg-black position-relative modal-poster-col flex-shrink-0"
+                            style="display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 250px;">
                             <!-- Loading Placeholder or Fallback icon -->
                             <div
                                 class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center z-0">
@@ -296,7 +296,8 @@
                         </div>
 
                         <!-- Right Column: Details -->
-                        <div class="col-lg-7 h-100 overflow-y-auto custom-scrollbar" style="background: var(--bg-1);">
+                        <div class="col-lg-7 flex-grow-1 overflow-y-auto custom-scrollbar"
+                            style="background: var(--bg-1);">
                             <div class="p-5 d-flex flex-column h-100">
                                 <div class="flex-shrink-0 mb-4">
                                     <span id="detailCat" class="badge-pill mb-3 d-inline-block">Category</span>
@@ -517,6 +518,10 @@
 
             const img = btn.dataset.img;
             const imgEl = document.getElementById('detailImg');
+
+            // Clear any previous error states that might darken the image
+            imgEl.classList.remove('opacity-50', 'p-5');
+
             // Logic: If image exists, show it. The parent container controls the black bg.
             if (img) {
                 imgEl.src = img;
