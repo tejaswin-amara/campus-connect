@@ -10,8 +10,6 @@ images
 *.md
 *.txt
 *.ps1
-docker-compose.yml
-Dockerfile
 LICENSE
 mvnwDebug
 mvnwDebug.cmd
