@@ -1,6 +1,7 @@
 package com.tejaswin.campus.controller;
 
 import com.tejaswin.campus.model.Event;
+import com.tejaswin.campus.model.User;
 import com.tejaswin.campus.service.EventService;
 import com.tejaswin.campus.service.SessionService;
 import com.tejaswin.campus.exception.EventNotFoundException;
@@ -149,9 +150,14 @@ public class AdminController {
                 return "redirect:/admin/dashboard";
             }
 
+            User loggedInUser = sessionService.getLoggedInUser();
+            if (loggedInUser == null) {
+                logger.warn("AUDIT: Event addition attempted without active admin session.");
+                return "redirect:/admin/login";
+            }
+
             if (imageFile != null && !imageFile.isEmpty()) {
-                String savedUrl = eventService.saveUploadedImage(imageFile,
-                        sessionService.getLoggedInUser().getUsername());
+                String savedUrl = eventService.saveUploadedImage(imageFile, loggedInUser.getUsername());
                 if (savedUrl != null) {
                     event.setImageUrl(savedUrl);
                     newlyUploadedUrl = savedUrl;
@@ -173,6 +179,7 @@ public class AdminController {
                     logger.error("Failed to clean up file after transaction failure in addEvent", ex);
                 }
             }
+            logger.error("Failed to add event: {}", e.getMessage(), e);
             throw e;
         }
         return "redirect:/admin/dashboard";
@@ -226,10 +233,15 @@ public class AdminController {
             event.setResponsesLink(responsesLink);
             event.setEndDateTime(endDateTime);
 
+            User loggedInUser = sessionService.getLoggedInUser();
+            if (loggedInUser == null) {
+                logger.warn("AUDIT: Event edit attempted without active admin session for ID: {}", id);
+                return "redirect:/admin/login";
+            }
+
             if (imageFile != null && !imageFile.isEmpty()) {
                 String oldUrl = event.getImageUrl();
-                String savedUrl = eventService.saveUploadedImage(imageFile,
-                        sessionService.getLoggedInUser().getUsername());
+                String savedUrl = eventService.saveUploadedImage(imageFile, loggedInUser.getUsername());
 
                 if (savedUrl == null) {
                     throw new InvalidImageException("Invalid image file. Allowed: JPG, PNG, WebP, GIF.");
@@ -256,6 +268,7 @@ public class AdminController {
                     logger.error("Failed to clean up file after transaction failure", ex);
                 }
             }
+            logger.error("Failed to edit event (ID: {}): {}", id, e.getMessage(), e);
             throw e;
         }
         return "redirect:/admin/dashboard";

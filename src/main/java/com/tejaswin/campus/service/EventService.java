@@ -437,8 +437,9 @@ public class EventService {
             }
             auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "SUCCESS");
             return "/uploads/" + fileName;
-        } catch (java.io.IOException e) {
+        } catch (Exception e) {
             auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "ERROR: " + e.getMessage());
+            logger.error("Failed to save uploaded image for user {}: {}", username, e.getMessage(), e);
             return null;
         }
     }
