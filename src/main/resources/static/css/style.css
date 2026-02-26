@@ -54,6 +54,12 @@
     --dur-fast: 250ms;
     --dur-normal: 350ms;
     --dur-slow: 550ms;
+    --dur-component: 300ms;
+
+    /* Shorthand transition tokens */
+    --tr-smooth: 300ms ease;
+    --tr-fast: 150ms ease;
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Spacing & shape */
     --r-sm: 6px;
@@ -62,37 +68,27 @@
     --r-xl: 18px;
     --r-pill: 999px;
 
-    /* Old fallback tokens */
+    /* Aliases for legacy references */
+    --text-main: var(--text-primary);
+    --border-radius: var(--r-md);
+    --border-radius-sm: var(--r-sm);
+    --bg-glass-heavy: rgba(20, 20, 30, 0.85);
+    --accent-green: var(--success);
+    --accent-red: var(--danger);
+
+    /* Legacy layout tokens (non-conflicting with Phase 2) */
     /* 🎨 Color Palette */
     --bg-0: #0A0A0F;
-    /* Deepest background */
     --bg-1: #111118;
-    /* App surface */
     --bg-2: #1A1A24;
-    /* Cards/Modals */
     --bg-3: #22222E;
-    /* Hover states/Inputs */
 
     --primary: #7C3AED;
     --primary-glow: rgba(124, 58, 237, 0.35);
     --secondary: #06B6D4;
 
-    --success: #10B981;
-    --danger: #EF4444;
-    --warning: #F59E0B;
-
-    /* Category Colors */
+    /* Category Colors (non-conflicting) */
     --cat-tech: #7C3AED;
-    --cat-cultural: #06B6D4;
-    --cat-sports: #14B8A6;
-    --cat-workshop: #F59E0B;
-    --cat-seminar: #EC4899;
-
-    /* Text Hierarchy */
-    --text-primary: #F1F5F9;
-    --text-secondary: #A0AEC0;
-    --text-muted: #64748B;
-    --text-label: #94A3B8;
 
     /* 📐 Dimensions & Spacing (Base 4px) */
     --space-2: 8px;
@@ -1190,7 +1186,7 @@ body.modal-open {
 
 .skeleton-card {
     height: 380px;
-    background: var(--bg-glass);
+    background: var(--bg-glass-heavy);
     border: 1px solid var(--border-glass);
     border-radius: var(--border-radius);
     padding: 0;

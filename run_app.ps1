@@ -1,4 +1,4 @@
-# Campus Event Manager - Integrated Startup Script
+﻿# Campus Event Manager - Integrated Startup Script
 
 $mysqlServiceName = "MySQL80" # Default for MySQL 8.0 installer
 $mysqlAltName = "MySQL"

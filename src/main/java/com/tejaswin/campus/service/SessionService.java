@@ -25,7 +25,12 @@ public class SessionService {
     }
 
     public void setLoggedInUser(User user) {
-        getSession(true).setAttribute(USER_SESSION_KEY, user);
+        HttpSession session = getSession(true);
+        if (session != null) {
+            session.setAttribute(USER_SESSION_KEY, user);
+        } else {
+            throw new IllegalStateException("Cannot set user: no HTTP request context available");
+        }
     }
 
     public void invalidateSession() {

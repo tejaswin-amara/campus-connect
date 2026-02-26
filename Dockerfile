@@ -30,17 +30,21 @@ COPY --from=builder /app/target/campus-event-manager-0.0.1-SNAPSHOT.jar app.jar
 # Create uploads directory and set permissions
 RUN mkdir -p uploads && chown -R appuser:appgroup /app/uploads
 
-# Set upload directory environment variable explicitely
+# Set upload directory environment variable explicitly
 ENV UPLOAD_DIR=/app/uploads
 
 USER appuser
 
-# Expose the configurable port (standardize on PORT variable)
-EXPOSE ${PORT:-9090}
+# Build-time argument for port configuration
+ARG PORT=9090
+ENV PORT=${PORT}
 
-# Health check (Actuator) - using dynamic port
+# Expose the configurable port (standardize on PORT variable)
+EXPOSE ${PORT}
+
+# Health check (Actuator) - using dynamic port via shell expansion
 HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-9090}/actuator/health || exit 1
+  CMD sh -c "wget --no-verbose --tries=1 --spider http://localhost:${PORT}/actuator/health || exit 1"
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]

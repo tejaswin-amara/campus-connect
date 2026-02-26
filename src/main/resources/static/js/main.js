@@ -101,11 +101,30 @@ function downloadICS(title, desc, dateStr, timeStr, venue) {
     // dateStr example: "Tue, Feb 17, 2026"
     // timeStr example: "1:30 PM"
 
-    const start = new Date(`${dateStr} ${timeStr}`);
+    // Explicit parsing: dateStr = "Mon, Feb 17, 2026", timeStr = "1:30 PM"
+    const months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    const dateParts = dateStr.replace(/,/g, '').trim().split(/\s+/);
+    // Handle both "Feb 17 2026" and "Mon Feb 17 2026" formats
+    const monthStr = dateParts.length >= 4 ? dateParts[1] : dateParts[0];
+    const day = parseInt(dateParts.length >= 4 ? dateParts[2] : dateParts[1], 10);
+    const year = parseInt(dateParts.length >= 4 ? dateParts[3] : dateParts[2], 10);
+    const monthIndex = months[monthStr] !== undefined ? months[monthStr] : 0;
+
+    const timeParts = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+    let hours = timeParts ? parseInt(timeParts[1], 10) : 0;
+    const minutes = timeParts ? parseInt(timeParts[2], 10) : 0;
+    if (timeParts && timeParts[3]) {
+        const period = timeParts[3].toUpperCase();
+        if (period === 'PM' && hours < 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+    }
+
+    const start = new Date(year, monthIndex, day, hours, minutes);
     const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // Default 2 hours
 
     const formatDate = (date) => {
-        return date.toISOString().replace(/-|:|\.\d+/g, '');
+        const pad = (num) => String(num).padStart(2, '0');
+        return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
     };
 
     const icsContent = [

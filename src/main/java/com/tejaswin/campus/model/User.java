@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -22,6 +23,7 @@ public class User {
     @Column(nullable = false)
     private String role; // ADMIN or STUDENT
 
+    @Email(message = "Must be a valid email address")
     private String email;
 
     @Column(nullable = false, length = 60)

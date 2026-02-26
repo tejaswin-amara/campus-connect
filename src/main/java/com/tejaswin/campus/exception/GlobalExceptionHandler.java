@@ -71,10 +71,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleConstraintViolation(jakarta.validation.ConstraintViolationException exc,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
         logger.warn("Constraint violation: {}", exc.getMessage());
-        redirectAttributes.addFlashAttribute("error", "Invalid input provided!");
-        return "redirect:/admin/login";
+        model.addAttribute("message", "Invalid input provided.");
+        model.addAttribute("status", HttpStatus.BAD_REQUEST.value());
+        return "error";
     }
 
     @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)

@@ -23,6 +23,7 @@ public class Event {
     private Long id;
 
     @NotBlank(message = "Title is required")
+    @Size(max = 255, message = "Title must be at most 255 characters")
     @Column(nullable = false)
     private String title;
 

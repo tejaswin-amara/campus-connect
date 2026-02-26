@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @Controller
@@ -111,11 +111,18 @@ public class EventController {
     }
 
     @GetMapping("/event/{id}")
-    public String eventDetail(@PathVariable Long id, Model model) {
+    public String eventDetail(@PathVariable Long id, Model model,
+            jakarta.servlet.http.HttpServletRequest request) {
         Event event = eventService.findEventById(id);
         if (event == null) {
             return "redirect:/student/dashboard";
         }
+        // Build absolute base URL for Open Graph / social meta tags (uses X-Forwarded-*
+        // when configured)
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .build()
+                .toUriString();
+        model.addAttribute("baseUrl", baseUrl);
         model.addAttribute("event", event);
         return "event_detail";
     }

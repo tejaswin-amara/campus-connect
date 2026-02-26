@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS events (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Registrations with UNIQUE constraint to prevent race condition duplicates
+-- NOTE: ON DELETE CASCADE is intentional for simplicity in early development.
+-- Deleting a user or event removes all associated registrations permanently.
+-- Application-layer audit logging (SecurityAuditLogger) compensates for the
+-- lack of soft deletes. Revisit if data retention / analytics requirements grow.
 CREATE TABLE IF NOT EXISTS registrations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
