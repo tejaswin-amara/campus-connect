@@ -8,11 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css?v=7}">
-    <script th:src="@{/js/main.js}" defer></script>
+    <link rel="stylesheet" th:href="@{/css/style.css?v=8}">
+    <script th:src="@{/js/main.js?v=2}" defer></script>
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
-    <link rel="manifest" th:href="@{/manifest.json}" crossorigin="use-credentials">
+    <link rel="manifest" th:href="@{/manifest.json?v=2}" crossorigin="use-credentials">
     <!-- SEO & Social Meta Tags -->
     <meta property="og:title" content="CampusConnect - Discover Events">
     <meta property="og:description"
@@ -20,6 +20,27 @@
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#6366f1">
     <meta name="twitter:card" content="summary_large_image">
+    <!-- Inline Critical Fixes (Overrides cached CSS) -->
+    <style>
+        .modal-poster-col {
+            min-height: 250px;
+            max-height: 40vh;
+        }
+
+        @media (min-width: 992px) {
+            .modal-poster-col {
+                min-height: 100%;
+                max-height: 100%;
+            }
+        }
+
+        .qr-img-override {
+            max-width: 150px !important;
+            height: auto !important;
+            margin: 0 auto;
+            display: block;
+        }
+    </style>
 </head>
 
 <body>

@@ -164,6 +164,7 @@ function generateQRCode(containerId, url) {
     const qrWrapper = document.createElement('div');
     qrWrapper.className = 'qr-container';
     const qrImg = document.createElement('img');
+    qrImg.className = 'qr-img-override';
     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
     qrImg.alt = 'Registration QR Code';
     qrWrapper.appendChild(qrImg);
