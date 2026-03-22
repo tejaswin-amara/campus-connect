@@ -67,8 +67,6 @@ public class AuthController {
             return "redirect:/admin/login";
         }
 
-        // Prevent session fixation for custom auth flow by manually migrating the
-        // session
         jakarta.servlet.http.HttpSession oldSession = request.getSession(false);
         if (oldSession != null) {
             oldSession.invalidate();

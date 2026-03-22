@@ -30,13 +30,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // Standard URI construction
+
         String uploadUri = uploadBaseDir.toUri().toString();
         if (!uploadUri.endsWith("/")) {
             uploadUri += "/";
         }
 
-        // Additional file: paths for Windows robustness
         String absolutePath = uploadBaseDir.toAbsolutePath().toString().replace("\\", "/");
         if (!absolutePath.endsWith("/")) {
             absolutePath += "/";

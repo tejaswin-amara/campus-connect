@@ -12,25 +12,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Integration tests for the login flow and session security.
- *
- * <p>
- * Verifies:
- * </p>
- * <ul>
- * <li>Valid admin credentials redirect to /admin/dashboard</li>
- * <li>Invalid credentials redirect back with error</li>
- * <li>CSRF is required on login POST</li>
- * </ul>
- *
- * <p>
- * Session fixation is configured via
- * {@code sessionFixation(sf -> sf.migrateSession())} in SecurityConfig.
- * MockMvc cannot observe the actual session-ID swap at the Servlet
- * container level, so this is verified by configuration inspection.
- * </p>
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class SessionFixationTest {

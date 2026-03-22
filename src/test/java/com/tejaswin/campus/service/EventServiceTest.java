@@ -41,11 +41,9 @@ public class EventServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Manual construction because EventService requires a @Value string parameter
+
         eventService = new EventService(eventRepository, registrationRepository, userRepository, auditLogger);
     }
-
-    // ── Existing Tests ──────────────────────────────────────────────────
 
     @Test
     public void testFindAllEvents() {
@@ -94,8 +92,6 @@ public class EventServiceTest {
         verify(eventRepository, times(1)).deleteById(eventId);
     }
 
-    // ── New Edge-Case Tests ─────────────────────────────────────────────
-
     @Test
     void testFindEventByIdNotFound() {
         when(eventRepository.findById(999L)).thenReturn(Optional.empty());
@@ -110,7 +106,6 @@ public class EventServiceTest {
         Event event = new Event(1L, "Event", "Desc", LocalDateTime.now(), "Venue", "Technical");
         when(eventRepository.findAllByOrderByDateTimeDesc()).thenReturn(List.of(event));
 
-        // Blank query should return all events
         List<Event> results = eventService.searchEvents("   ");
 
         assertEquals(1, results.size());
@@ -134,7 +129,6 @@ public class EventServiceTest {
         Event event = new Event(1L, "Event", "Desc", LocalDateTime.now(), "Venue", "Technical");
         when(eventRepository.findAllByOrderByDateTimeDesc()).thenReturn(List.of(event));
 
-        // "all" filter should return all events
         List<Event> results = eventService.findEventsByCategory("all");
 
         assertEquals(1, results.size());
@@ -215,7 +209,7 @@ public class EventServiceTest {
         String csvContent = new String(csv);
 
         assertTrue(csvContent.startsWith("ID,Title,Category"));
-        // Only header line, no data rows
+
         assertEquals(1, csvContent.trim().split("\n").length);
     }
 
@@ -227,7 +221,6 @@ public class EventServiceTest {
         byte[] csv = eventService.getAllEventsAsCsv();
         String csvContent = new String(csv);
 
-        // Should contain escaped quotes and the event data
         assertTrue(csvContent.contains("\"Event \"\"quoted\"\"\""));
         assertTrue(csvContent.contains("\"Venue, with comma\""));
     }

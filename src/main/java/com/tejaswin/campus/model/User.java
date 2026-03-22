@@ -21,7 +21,7 @@ public class User {
     private String username;
 
     @Column(nullable = false)
-    private String role; // ADMIN or STUDENT
+    private String role;
 
     @Email(message = "Must be a valid email address")
     private String email;

@@ -31,7 +31,6 @@ class DataInitializerTest {
 
         dataInitializer.run();
 
-        // Use atLeastOnce because the bean might run automatically during context load
         verify(userRepository, atLeast(2)).save(any(User.class));
     }
 

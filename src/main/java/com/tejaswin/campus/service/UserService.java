@@ -27,7 +27,7 @@ public class UserService {
         if (user != null && user.getPassword() != null && password != null) {
             match = passwordEncoder.matches(password, user.getPassword());
         } else {
-            // Constant-time dummy execution to prevent username enumeration timing attacks
+
             passwordEncoder.matches(password != null ? password : "", dummyHash);
         }
 

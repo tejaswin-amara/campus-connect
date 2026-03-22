@@ -65,7 +65,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     }
 
     private String getClientIp(HttpServletRequest request) {
-        // Only trust XFF from known internal/proxy addresses; otherwise use direct IP.
+
         String remoteAddr = request.getRemoteAddr();
         String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader != null && isTrustedProxy(remoteAddr)) {
@@ -75,7 +75,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     }
 
     private boolean isTrustedProxy(String addr) {
-        // configure via AppConfig or env var; e.g. "127.0.0.1", "10.0.0.0/8"
+
         return addr.startsWith("127.") || addr.startsWith("10.");
     }
 }
