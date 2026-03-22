@@ -9,7 +9,7 @@ public class AppConfig {
 
     private String uploadDir = "uploads";
     private int bcryptStrength = 12;
-    private int sessionTimeout = 1800; // 30 minutes in seconds
+    private int sessionTimeout = 1800;
     private RateLimit rateLimit = new RateLimit();
 
     public String getUploadDir() {

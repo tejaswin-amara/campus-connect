@@ -41,7 +41,7 @@ public class Event {
     private String venue;
 
     @NotBlank(message = "Category is required")
-    private String category; // Technical, Cultural, Sports, Workshop, Seminar
+    private String category;
 
     @URL(message = "Invalid registration link URL")
     @Pattern(regexp = "^$|^https?://.*", message = "Must be a valid HTTP/HTTPS URL")

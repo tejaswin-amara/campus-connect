@@ -62,16 +62,14 @@ class RateLimitingFilterTest {
         when(response.getWriter()).thenReturn(new java.io.PrintWriter(new java.io.StringWriter()));
         when(request.getRemoteAddr()).thenReturn("1.2.3.4");
 
-        // Consume all tokens
         for (int i = 0; i < 5; i++) {
             filter.doFilterInternal(request, response, filterChain);
         }
         verify(filterChain, times(5)).doFilter(request, response);
 
-        // 6th attempt should fail
         filter.doFilterInternal(request, response, filterChain);
         verify(response).setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-        verify(filterChain, times(5)).doFilter(request, response); // Should not increase
+        verify(filterChain, times(5)).doFilter(request, response);
     }
 
     @Test
@@ -85,6 +83,6 @@ class RateLimitingFilterTest {
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        // This test ensures the internal getClientIp logic handles XFF correctly
+
     }
 }

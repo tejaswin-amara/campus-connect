@@ -83,13 +83,12 @@ public class AdminController {
         model.addAttribute("categoryCounts", categoryCountsMap);
         model.addAttribute("eventRegistrationCounts", eventRegistrationCounts);
 
-        // System Health
         Runtime runtime = Runtime.getRuntime();
         long totalMemory = runtime.totalMemory();
         long freeMemory = runtime.freeMemory();
         long usedMemory = totalMemory - freeMemory;
-        model.addAttribute("sysMemoryUsed", usedMemory / (1024 * 1024)); // MB
-        model.addAttribute("sysMemoryTotal", totalMemory / (1024 * 1024)); // MB
+        model.addAttribute("sysMemoryUsed", usedMemory / (1024 * 1024));
+        model.addAttribute("sysMemoryTotal", totalMemory / (1024 * 1024));
         model.addAttribute("sysCores", runtime.availableProcessors());
 
         model.addAttribute("events", eventsPage.getContent());
@@ -165,7 +164,7 @@ public class AdminController {
             eventService.saveEvent(event);
             redirectAttributes.addFlashAttribute("success", "Event added successfully!");
         } catch (Exception e) {
-            // DB handles transactionality
+
             logger.error("Failed to add event: {}", e.getMessage(), e);
             throw e;
         }
@@ -236,7 +235,7 @@ public class AdminController {
             eventService.saveEvent(event);
             redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
         } catch (Exception e) {
-            // DB handles transactionality
+
             logger.error("Failed to edit event (ID: {}): {}", id, e.getMessage(), e);
             throw e;
         }

@@ -33,7 +33,7 @@ public class AdminControllerSecurityTest {
         mockMvc.perform(post("/admin/login")
                 .param("username", "admin")
                 .param("password", "admin123"))
-                .andExpect(status().isForbidden()); // 403 Forbidden without CSRF token
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -68,14 +68,13 @@ public class AdminControllerSecurityTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void cve202522228_passwordLengthConstraintEnforced() throws Exception {
-        // Validation length limits reject explicitly oversized strings
+
         String giantPassword = "A".repeat(80);
         mockMvc.perform(post("/admin/login")
                 .param("username", "admin")
                 .param("password", giantPassword)
                 .with((org.springframework.test.web.servlet.request.RequestPostProcessor) csrf()))
-                // Allow both the 400 framework Bad Request or exactly matching our explicit 30x
-                // logic fallback
+
                 .andExpect(result -> {
                     int statusCode = result.getResponse().getStatus();
                     org.junit.jupiter.api.Assertions.assertTrue(

@@ -99,7 +99,7 @@ public class EventController {
             logger.warn("User {} has null ID, skipping registration", user.getUsername());
             return "redirect:/student/event/" + eventId;
         }
-        // Track interest for analytics
+
         auditLogger.logSecurityLinkClick(user.getUsername(), "REGISTER_EXTERNAL", eventId);
         Long studentId = user.getId();
         if (studentId != null) {
@@ -110,7 +110,7 @@ public class EventController {
         if (event != null && event.getRegistrationLink() != null && !event.getRegistrationLink().isEmpty()) {
 
             String link = event.getRegistrationLink().trim();
-            // Security: Only allow HTTP/HTTPS redirects to prevent open-redirect attacks
+
             if (link.startsWith("http://") || link.startsWith("https://")) {
                 return "redirect:" + link;
             }
@@ -132,8 +132,7 @@ public class EventController {
         if (event == null) {
             return "redirect:/student/dashboard";
         }
-        // Build absolute base URL for Open Graph / social meta tags (uses X-Forwarded-*
-        // when configured)
+
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .build()
                 .toUriString();
@@ -150,7 +149,7 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
 
-        MediaType mediaType = MediaType.IMAGE_JPEG; // Default
+        MediaType mediaType = MediaType.IMAGE_JPEG;
         String storedMimeType = event.getImageMimeType();
         if (storedMimeType != null) {
             try {

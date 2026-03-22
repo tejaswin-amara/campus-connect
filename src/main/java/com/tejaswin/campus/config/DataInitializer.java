@@ -42,7 +42,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Fail fast if using default admin password in production
+
         if (Arrays.asList(environment.getActiveProfiles()).contains("prod")
                 && "admin123".equals(adminPassword)) {
             throw new IllegalStateException(
@@ -52,7 +52,6 @@ public class DataInitializer implements CommandLineRunner {
             logger.warn("⚠️  SECURITY: Using default admin password. Set ADMIN_PASSWORD env var for production.");
         }
 
-        // 1. Ensure Guest User Exists (CRITICAL: Required for auto-login on /)
         User guest = userRepository.findByUsernameForUpdate("guest").orElse(null);
         if (guest == null) {
             guest = new User();
@@ -62,14 +61,12 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(guest);
             logger.info("✅ Guest user created (auto-login enabled)");
         } else if (guest.getPassword() != null && !isBCryptHash(guest.getPassword())) {
-            // Assumes pre-migration passwords are stored as plaintext. Risk of irreversible
-            // double-hashing if prior schemes existed.
+
             guest.setPassword(passwordEncoder.encode(guest.getPassword()));
             userRepository.save(guest);
             logger.info("✅ Guest password migrated to BCrypt");
         }
 
-        // 2. Ensure Admin User Exists
         User admin = userRepository.findByUsernameForUpdate("admin").orElse(null);
         if (admin == null) {
             admin = new User();
@@ -79,19 +76,17 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(admin);
             logger.info("✅ Admin user created");
         } else if (admin.getPassword() != null && !isBCryptHash(admin.getPassword())) {
-            // Assumes pre-migration passwords are stored as plaintext. Risk of irreversible
-            // double-hashing if prior schemes existed.
+
             admin.setPassword(passwordEncoder.encode(admin.getPassword()));
             userRepository.save(admin);
             logger.info("✅ Admin password migrated to BCrypt");
         } else if (admin.getPassword() != null && !passwordEncoder.matches(adminPassword, admin.getPassword())) {
-            // Admin password env var changed — sync hash
+
             admin.setPassword(passwordEncoder.encode(adminPassword));
             userRepository.save(admin);
             logger.info("✅ Admin password updated to match configured ADMIN_PASSWORD");
         }
 
-        // 3. Ensure Sample Event Exists
         if (eventRepository.count() == 0) {
             Event welcomeEvent = new Event();
             welcomeEvent.setTitle("Welcome to CampusConnect!");
@@ -108,10 +103,6 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    /**
-     * Returns true if the given password string is already a BCrypt hash.
-     * BCrypt hashes always start with "$2a$", "$2b$", or "$2y$".
-     */
     private boolean isBCryptHash(String password) {
         return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$");
     }

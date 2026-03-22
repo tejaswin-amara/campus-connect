@@ -44,18 +44,6 @@ public class EventService {
 
     private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif");
 
-    /**
-     * Constructs the EventService with required repositories, logger and resolves
-     * the base
-     * upload directory.
-     *
-     * @param eventRepository        repository for events
-     * @param registrationRepository repository for registrations
-     * @param userRepository         repository for users
-     * @param auditLogger            logger for security events
-     * @param uploadDir              configured upload directory (relative or
-     *                               absolute)
-     */
     public EventService(EventRepository eventRepository,
             RegistrationRepository registrationRepository,
             UserRepository userRepository,
@@ -66,11 +54,6 @@ public class EventService {
         this.auditLogger = auditLogger;
     }
 
-    /**
-     * Fetches all events ordered by start time descending.
-     *
-     * @return list of events, never null
-     */
     @Transactional(readOnly = true)
     public List<Event> findAllEvents() {
         return eventRepository.findAllByOrderByDateTimeDesc();
@@ -81,11 +64,6 @@ public class EventService {
         return eventRepository.findAllByOrderByDateTimeDesc(pageable);
     }
 
-    /**
-     * Persists an event. Logs an AUDIT message indicating create or update.
-     *
-     * @param event event to save
-     */
     @Transactional
     public void saveEvent(Event event) {
         boolean isNew = event.getId() == null;
@@ -97,24 +75,11 @@ public class EventService {
         }
     }
 
-    /**
-     * Finds an event by id.
-     *
-     * @param id event identifier, non-null
-     * @return event or null if not found
-     */
     @Transactional(readOnly = true)
     public Event findEventById(@NonNull Long id) {
         return eventRepository.findById(id).orElse(null);
     }
 
-    /**
-     * Searches events by title or venue containing the query (case-insensitive).
-     * Falls back to all events if query is null/blank.
-     *
-     * @param query search text, may be null/blank
-     * @return list of events matching criteria
-     */
     @Transactional(readOnly = true)
     public List<Event> searchEvents(String query) {
         if (query == null || query.trim().isEmpty()) {
@@ -145,13 +110,6 @@ public class EventService {
         return findAllEventsPage(pageable);
     }
 
-    /**
-     * Returns events by category ordered by start time desc.
-     * If category is null/blank or 'all', returns all events.
-     *
-     * @param category category filter
-     * @return list of events
-     */
     @Transactional(readOnly = true)
     public List<Event> findEventsByCategory(String category) {
         if (category == null || category.trim().isEmpty() || "all".equalsIgnoreCase(category)) {
@@ -168,18 +126,10 @@ public class EventService {
         return eventRepository.findByCategoryOrderByDateTimeDesc(category, pageable);
     }
 
-    /**
-     * Registers user interest in an event for analytics (status INTERESTED).
-     * No-op if a registration already exists for the user-event pair.
-     *
-     * @param eventId event id
-     * @param userId  user id
-     * @return true if created, false if already existed or invalid ids
-     */
     @Transactional
     @CircuitBreaker(name = "registrationService", fallbackMethod = "registrationFallback")
     public boolean registerStudent(@NonNull Long eventId, @NonNull Long userId) {
-        // Just track unique interest/clicks for analytics
+
         if (registrationRepository.existsByUserIdAndEventId(userId, eventId)) {
             return false;
         }
@@ -195,36 +145,24 @@ public class EventService {
         registration.setUser(user);
         registration.setEvent(event);
         registration.setRegistrationDate(LocalDateTime.now());
-        registration.setStatus("INTERESTED"); // Changed from CONFIRMED
+        registration.setStatus("INTERESTED");
 
         registrationRepository.save(registration);
         return true;
     }
 
-    /**
-     * Fallback for registration circuit breaker.
-     */
     public boolean registrationFallback(Long eventId, Long userId, Throwable t) {
         logger.error("Circuit breaker triggered for registration (event:{}, user:{}): {}", eventId, userId,
                 t.getMessage());
         return false;
     }
 
-    /**
-     * Deletes an event and its registrations. Best-effort deletion of associated
-     * image file
-     * under the configured upload directory.
-     *
-     * @param id event id
-     */
     @Transactional
     public void deleteEvent(@NonNull Long id) {
-        // 1. Get event to find image path
+
         Event event = eventRepository.findById(id).orElse(null);
         if (event != null && event.getImageUrl() != null) {
-            // No need to delete from filesystem anymore, DB handles it via Cascade if we
-            // used it,
-            // but here we just delete the event record.
+
         }
 
         registrationRepository.deleteByEventId(id);
@@ -232,67 +170,36 @@ public class EventService {
         logger.warn("AUDIT: Event deleted (ID: {})", id);
     }
 
-    // Analytics
-    /**
-     * @return total number of events
-     */
     @Transactional(readOnly = true)
     public long getTotalEventsCount() {
         return eventRepository.count();
     }
 
-    /**
-     * @return total number of registrations across all events
-     */
     @Transactional(readOnly = true)
     public long getTotalRegistrationsCount() {
         return registrationRepository.count();
     }
 
-    /**
-     * @return list of all registrations
-     */
     @Transactional(readOnly = true)
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
     }
 
-    /**
-     * Counts events strictly after now.
-     *
-     * @return number of upcoming events
-     */
     @Transactional(readOnly = true)
     public long getUpcomingEventsCount() {
         return eventRepository.countByDateTimeAfter(LocalDateTime.now());
     }
 
-    /**
-     * Counts events currently happening (start <= now && end >= now).
-     *
-     * @return number of ongoing events
-     */
     @Transactional(readOnly = true)
     public long getOngoingEventsCount() {
         return eventRepository.countOngoingEvents(LocalDateTime.now());
     }
 
-    /**
-     * @param eventId event id
-     * @return number of registrations for the event
-     */
     @Transactional(readOnly = true)
     public long getRegistrationCount(Long eventId) {
         return registrationRepository.countByEventId(eventId);
     }
 
-    /**
-     * Builds a map of eventId -> registration count for the provided events.
-     * Initializes counts to zero then overlays results from an aggregate query.
-     *
-     * @param events list of events to get counts for
-     * @return map of eventId -> registration count
-     */
     @Transactional(readOnly = true)
     public Map<Long, Long> getRegistrationCountsMap(List<Event> events) {
         Map<Long, Long> counts = new HashMap<>();
@@ -314,9 +221,6 @@ public class EventService {
         return counts;
     }
 
-    /**
-     * @return map of category name -> event count, preserving repository order
-     */
     @Transactional(readOnly = true)
     public Map<String, Long> getCategoryCounts() {
         Map<String, Long> map = new LinkedHashMap<>();
@@ -327,24 +231,16 @@ public class EventService {
         return map;
     }
 
-    /**
-     * @return count of events not considered upcoming (total - upcoming)
-     */
     @Transactional(readOnly = true)
     public long getPastEventsCount() {
         return eventRepository.countPastEvents(LocalDateTime.now());
     }
 
-    /**
-     * Exports all events as CSV (UTF-8). Null-safe for optional fields.
-     *
-     * @return CSV bytes
-     */
     @Transactional(readOnly = true)
     public byte[] getAllEventsAsCsv() {
         List<Event> events = findAllEvents();
         StringBuilder csv = new StringBuilder();
-        // Header
+
         csv.append(
                 "ID,Title,Category,Venue,Start DateTime,End DateTime,Capacity,Registration Link,Responses Link,Status\n");
 
@@ -380,7 +276,7 @@ public class EventService {
     private String escapeCsv(String data) {
         if (data == null)
             return "";
-        // Prevent CSV injection (Formula Injection)
+
         if (data.startsWith("=") || data.startsWith("+") || data.startsWith("-") || data.startsWith("@")) {
             data = "'" + data;
         }
@@ -391,11 +287,6 @@ public class EventService {
         return escaped;
     }
 
-    /**
-     * Saves an uploaded image to the Event object (for DB storage), sanitizing the
-     * filename
-     * and checking for allowed extensions.
-     */
     public boolean saveUploadedImage(MultipartFile imageFile, String username, Event event) {
         String originalFilename = imageFile.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
@@ -417,10 +308,8 @@ public class EventService {
         try {
             event.setImageData(imageFile.getBytes());
             event.setImageMimeType(imageFile.getContentType());
-            // We'll keep the imageUrl as a marker for now, or just set it to a special path
-            // that our new controller will handle.
-            event.setImageUrl("/api/public/events/image/" + UUID.randomUUID().toString()); // Placeholder to indicate
-                                                                                           // image exists
+
+            event.setImageUrl("/api/public/events/image/" + UUID.randomUUID().toString());
 
             auditLogger.logFileUpload(username, originalFilename, imageFile.getSize(), "SUCCESS (DB)");
             return true;
@@ -431,10 +320,7 @@ public class EventService {
         }
     }
 
-    /**
-     * Deletes an image. (No-op now as DB handles it when Event is deleted)
-     */
     public void deleteImageByUrl(String imageUrl) {
-        // No-op for DB storage
+
     }
 }
