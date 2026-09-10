@@ -1,7 +1,7 @@
 # CampusConnect project structure
 
 > **Purpose:** Map repository paths to runtime responsibility, verification evidence, and contributor entry points.
-> **Current baseline:** Java 25, Spring Boot 4.1.0, MySQL 8.4, Flyway V1–V3
+> **Current baseline:** Java 25, Spring Boot 4.1.0, MySQL 8.4, Flyway V1–V4
 
 CampusConnect is organized as a **layered modular monolith**. Spring component scanning, Thymeleaf view resolution, Flyway migration discovery, and CI conventions mean that a file can be required even when it has no direct caller in another Java class.
 
@@ -102,6 +102,7 @@ The Java package is `com.tejaswin.campus`.
 | `V1__Initial_Schema.sql` | Baseline users, events, registrations, keys, and initial constraints |
 | `V2__Add_Image_Blob_Columns.sql` | Database-backed image data and MIME metadata |
 | `V3__Add_event_query_indexes_and_integrity_checks.sql` | Query-aware indexes, event date checks, status constraints, and integrity hardening |
+| `V4__Hardening_and_audit.sql` | Domain CHECK constraints, status lifecycle states, composite index `idx_events_status_date_time`, and `outbox_events` transactional outbox |
 
 Flyway migration filenames are part of the database contract. Do not rename or delete an applied migration; add a new version instead.
 
@@ -129,7 +130,11 @@ Flyway migration filenames are part of the database contract. Do not rename or d
 
 ## Tests
 
-The repository contains **63 automated tests** across unit, model, controller, security, service, and integration-oriented classes.
+The repository contains **65 automated tests** across unit, model, controller, security, service, and concurrency stress test classes.
+
+| Test class | Evidence area |
+| --- | --- |
+| `EventServiceConcurrencyTest` | 10-thread simultaneous race condition stress testing (Invariant 1: 1062 duplicate rejection, Invariant 2: 8-user throughput) |
 
 | Test class | Evidence area |
 | --- | --- |

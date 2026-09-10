@@ -35,12 +35,29 @@ This directory is the authoritative evidence package for CampusConnect. It disti
 | Document | Purpose |
 | --- | --- |
 | [`architecture/README.md`](architecture/README.md) | C4 context, containers, components, deployment, bounded contexts, and distributed-evolution decisions |
-| [`data/README.md`](data/README.md) | Relational model, Flyway V1–V3, `flyway-mysql`, constraints, indexes, transactions, and persistence trade-offs |
+| [`data/README.md`](data/README.md) | Relational model, Flyway V1–V4, `flyway-mysql`, constraints, indexes, transactions, and persistence trade-offs |
 | [`api/README.md`](api/README.md) | HTML and targeted endpoint contract, validation, authentication, error behavior, and OpenAPI |
 | [`services/README.md`](services/README.md) | Logical module ownership and safe future extraction boundaries |
 | [`hybrid-integration-decision.md`](hybrid-integration-decision.md) | Firebase-Addition comparison and the server-side recommendation decision |
 | [`reference-repositories.md`](reference-repositories.md) | Complete register of supplied repositories and adopted or rejected practices |
 | [`stable-versions.md`](stable-versions.md) | Stable version baseline, compatibility policy, and upgrade evidence |
+
+### Database Systems Engineering & DBMS Compliance (25CS1302E)
+
+| Document | Purpose |
+| --- | --- |
+| [`design-report.md`](design-report.md) | Authoritative 20-section master design report covering ER, relational model, normalization, indexing, and transactions |
+| [`dbms-compliance.md`](dbms-compliance.md) | Formal course outcome (CO1–CO6) compliance assessment matrix |
+| [`data-dictionary.md`](data-dictionary.md) | Complete data dictionary for all runtime tables, domains, constraints, and keys |
+| [`normalization.md`](normalization.md) | Formal proofs: 1NF, 2NF, 3NF, BCNF, lossless join decomposition, and dependency preservation |
+| [`transaction-analysis.md`](transaction-analysis.md) | ACID properties, MySQL 8.4 REPEATABLE READ isolation, MVCC, and WAL durability analysis |
+| [`concurrency-test.md`](concurrency-test.md) | 10-thread simultaneous race condition stress test report and deadlock prevention evidence |
+| [`query-optimization.md`](query-optimization.md) | EXPLAIN ANALYZE performance benchmarks showing 51.7% cost reduction and filesort elimination |
+| [`distributed-database.md`](distributed-database.md) | Semi-sync GTID replication, read routing, tenant sharding, and transactional outbox pattern |
+| [`data-architecture-decision.md`](data-architecture-decision.md) | Architectural decision record comparing MySQL 8.4 and PostgreSQL 16 equivalents |
+| [`backup-recovery.md`](backup-recovery.md) | Operational runbook for logical backups, binary log archiving, and Point-In-Time Recovery (PITR) |
+| [`event-lifecycle.md`](event-lifecycle.md) | State machine specification for campus event status transitions |
+| [`demo-script.md`](demo-script.md) | Scripted live evaluation walkthrough for course demonstration |
 
 ### Delivery, security, and governance
 
