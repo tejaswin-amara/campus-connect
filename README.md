@@ -1,4 +1,4 @@
-# 🎓 CampusConnect
+# **🎓 CampusConnect**
 
 <div align="center">
 
