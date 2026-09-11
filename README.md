@@ -1,5 +1,6 @@
+<br />
 # **🎓 CampusConnect**
-
+<br />
 <div align="center">
 
 **Enterprise-Grade Campus Event Aggregator & Student Registration Platform**
