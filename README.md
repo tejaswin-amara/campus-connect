@@ -6,7 +6,7 @@
 
 [![Tests](https://img.shields.io/badge/tests-65%2F65%20passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](src/test/java/com/tejaswin/campus/service/EventServiceConcurrencyTest.java)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-25%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
+[![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.4%20LTS-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](database/schema.sql)
 [![Flyway](https://img.shields.io/badge/Flyway-V1--V4-CC0200?style=for-the-badge&logo=flyway&logoColor=white)](src/main/resources/db/migration/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
@@ -87,7 +87,7 @@ flowchart TD
 ## 🚀 Quickstart
 
 ### Prerequisites
-- **Java 25 LTS** (or compatible JDK)
+- **Java 21 LTS** (or compatible JDK)
 - **Docker** (for MySQL 8.4 container)
 
 ### 1. Start the Database
@@ -115,6 +115,16 @@ mysql -h 127.0.0.1 -P 3307 -u campus_app -pcampus_app_password campus_events < d
 export MYSQLHOST=127.0.0.1 MYSQLPORT=3307 MYSQLDATABASE=campus_events
 export MYSQLUSER=campus_app MYSQLPASSWORD=campus_app_password
 ./mvnw test
+```
+
+### Frontend Redesign (React + Vite)
+
+If you're evaluating the experimental `frontend-redesign` directory:
+
+```bash
+cd frontend-redesign
+npm install
+npm run build
 ```
 
 ### 4. Launch
@@ -205,11 +215,11 @@ FROM events WHERE category = 'Technical' ORDER BY date_time ASC;
 
 | Layer | Technology |
 |-------|-----------|
-| **Language** | Java 25 LTS (Microsoft OpenJDK) |
+| **Language** | Java 21 LTS (Microsoft OpenJDK) |
 | **Framework** | Spring Boot 4.1.0, Spring Security 6.4, Spring Data JPA |
 | **Database** | MySQL 8.4 LTS (InnoDB), Flyway 10.20 migrations |
 | **Resilience** | Resilience4j (Circuit Breaker, Rate Limiter via Bucket4j) |
-| **Frontend** | Thymeleaf 3 + Bootstrap 5.3 + Custom Dark Design System |
+| **Frontend** | Thymeleaf 3 + Bootstrap 5.3.8, Bootstrap Icons 1.13.1, Chart.js 4.5.1 + Custom Dark Design System |
 | **Testing** | JUnit 5, Mockito, JaCoCo (70%+ coverage gate) |
 | **Containerization** | Docker, Docker Compose |
 

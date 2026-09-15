@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -10,9 +10,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
     
     <!-- OpenDesign System Tokens & Styles -->
     <link rel="stylesheet" th:href="@{/css/style.css?v=20}">
@@ -343,7 +343,7 @@
                                                 style="width: 44px; height: 44px; border: 1px solid var(--border-glass);">
                                                 <img th:if="${event.imageData != null}"
                                                     th:src="@{/student/api/public/events/image/{id}(id=${event.id})}"
-                                                    class="w-100 h-100 object-fit-cover" alt="Thumb">
+                                                    class="w-100 h-100 object-fit-cover" alt="Thumb" loading="lazy" decoding="async">
                                                 <i th:if="${event.imageData == null}" class="bi bi-calendar-event text-muted fs-5"></i>
                                             </div>
                                             <div>
@@ -480,7 +480,7 @@
                                     placeholder="e.g. Annual Autonomous Agents Hackathon" required>
                             </div>
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="addCategory" class="form-label small fw-bold text-muted">CATEGORY *</label>
                                     <select class="form-select rounded-3" name="category" id="addCategory" required>
                                         <option value="Technical">Technical</option>
@@ -490,7 +490,7 @@
                                         <option value="Seminar">Seminar</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="addVenue" class="form-label small fw-bold text-muted">VENUE *</label>
                                     <input type="text" class="form-control rounded-3" name="venue" id="addVenue"
                                     placeholder="e.g. Turing Innovation Hall" required>
@@ -502,12 +502,12 @@
                         <div class="mb-4">
                             <h6 class="text-primary-light small fw-bold mb-3 tracking-widest text-uppercase">2. Schedule & Capacity</h6>
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="addStart" class="form-label small fw-bold text-muted">START DATE & TIME *</label>
                                     <input type="datetime-local" class="form-control rounded-3" name="dateTime"
                                         id="addStart" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="addEnd" class="form-label small fw-bold text-muted">END DATE & TIME (OPTIONAL)</label>
                                     <input type="datetime-local" class="form-control rounded-3" name="endDateTime"
                                         id="addEnd">
@@ -524,12 +524,12 @@
                         <div class="mb-4">
                             <h6 class="text-primary-light small fw-bold mb-3 tracking-widest text-uppercase">3. Links & Description</h6>
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="addRegLink" class="form-label small fw-bold text-muted">REGISTRATION LINK (URL)</label>
                                     <input type="url" class="form-control rounded-3" name="registrationLink"
                                         id="addRegLink" placeholder="https://forms.gle/...">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="addResLink" class="form-label small fw-bold text-muted">RESPONSES SHEET LINK (URL)</label>
                                     <input type="url" class="form-control rounded-3" name="responsesLink"
                                         id="addResLink" placeholder="https://docs.google.com/spreadsheets/...">
@@ -555,7 +555,7 @@
                                     accept="image/*">
                             </div>
                             <div class="upload-preview mt-3 p-2 rounded-3 glass d-flex align-items-center gap-3" id="createPreviewBox" style="display: none;">
-                                <img id="createPreviewImg" src="" alt="Preview" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                                <img id="createPreviewImg" src="" alt="Preview" loading="lazy" decoding="async" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                                 <div class="d-flex flex-column flex-grow-1">
                                     <span class="small fw-bold text-white">Poster Image Selected</span>
                                     <button type="button" class="btn btn-sm btn-link text-danger p-0 align-self-start"
@@ -599,7 +599,7 @@
                                     placeholder="Enter title" required>
                             </div>
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="editCategory" class="form-label small fw-bold text-muted">CATEGORY *</label>
                                     <select class="form-select rounded-3" id="editCategory" name="category" required>
                                         <option value="Technical">Technical</option>
@@ -609,7 +609,7 @@
                                         <option value="Seminar">Seminar</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="editVenue" class="form-label small fw-bold text-muted">VENUE *</label>
                                     <input type="text" class="form-control rounded-3" id="editVenue" name="venue"
                                         placeholder="Enter venue" required>
@@ -621,12 +621,12 @@
                         <div class="mb-4">
                             <h6 class="text-primary-light small fw-bold mb-3 tracking-widest text-uppercase">2. Schedule & Capacity</h6>
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="editDateTime" class="form-label small fw-bold text-muted">START DATE & TIME *</label>
                                     <input type="datetime-local" class="form-control rounded-3" id="editDateTime"
                                         name="dateTime" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="editEndDateTime" class="form-label small fw-bold text-muted">END DATE & TIME (OPTIONAL)</label>
                                     <input type="datetime-local" class="form-control rounded-3" id="editEndDateTime"
                                         name="endDateTime">
@@ -643,12 +643,12 @@
                         <div class="mb-4">
                             <h6 class="text-primary-light small fw-bold mb-3 tracking-widest text-uppercase">3. Links & Description</h6>
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="editLink" class="form-label small fw-bold text-muted">REGISTRATION LINK (URL)</label>
                                     <input type="url" class="form-control rounded-3" id="editLink"
                                         name="registrationLink" placeholder="https://forms.gle/...">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="editResponsesLink" class="form-label small fw-bold text-muted">RESPONSES SHEET LINK (URL)</label>
                                     <input type="url" class="form-control rounded-3" id="editResponsesLink"
                                         name="responsesLink" placeholder="https://docs.google.com/spreadsheets/...">
@@ -673,7 +673,7 @@
                                     accept="image/*">
                             </div>
                             <div class="upload-preview mt-3 p-2 rounded-3 glass d-flex align-items-center gap-3" id="editPreviewBox" style="display: none;">
-                                <img id="editPreviewImg" src="" alt="Preview" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                                <img id="editPreviewImg" src="" alt="Preview" loading="lazy" decoding="async" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                                 <div class="d-flex flex-column flex-grow-1">
                                     <span class="small fw-bold text-white">Image ready</span>
                                     <button type="button" class="btn btn-sm btn-link text-danger p-0 align-self-start"
@@ -715,7 +715,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <script th:inline="javascript">
         // Server data bridge — consumed by external admin-dashboard.js
