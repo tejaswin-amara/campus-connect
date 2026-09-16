@@ -72,7 +72,7 @@
         <div class="banner-container">
             <img th:if="${event.imageData != null}"
                 th:src="@{/student/api/public/events/image/{id}(id=${event.id})}"
-                class="banner-img" alt="Event Banner" loading="lazy" decoding="async">
+                class="banner-img" alt="Event Banner" decoding="async">
             <div th:if="${event.imageData == null}" class="d-flex align-items-center justify-content-center h-100 text-muted fs-1 opacity-25">
                 <i class="bi bi-image"></i>
             </div>
