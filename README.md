@@ -385,6 +385,6 @@ Built and maintained by **Tejaswin Amara** as the `25CS1302E` coursework deliver
 
 **If this helped you, consider giving it a ⭐ — it helps other students find it.**
 
-<sub>Built with 💜 for academic excellence in database systems engineering</sub>
+<sub>Built with rigor and care for excellence in database systems engineering.</sub>
 
 </div>
