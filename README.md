@@ -219,7 +219,7 @@ FROM events WHERE category = 'Technical' ORDER BY date_time ASC;
 | **Framework** | Spring Boot 4.1.0, Spring Security 6.4, Spring Data JPA |
 | **Database** | MySQL 8.4 LTS (InnoDB), Flyway 10.20 migrations |
 | **Resilience** | Resilience4j (Circuit Breaker, Rate Limiter via Bucket4j) |
-| **Frontend** | Thymeleaf 3 + Bootstrap 5.3.8, Bootstrap Icons 1.13.1, Chart.js 4.5.1 + Custom Dark Design System |
+| **Frontend** | Thymeleaf 3 + Bootstrap 5.3.3, Bootstrap Icons 1.13.1, Chart.js 4.4.7 + Custom Dark Design System |
 | **Testing** | JUnit 5, Mockito, JaCoCo (70%+ coverage gate) |
 | **Containerization** | Docker, Docker Compose |
 
