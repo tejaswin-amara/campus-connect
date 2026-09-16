@@ -36,10 +36,10 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v7
 
-      - name: Set up JDK 25
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: "25"
+          java-version: "21"
           distribution: temurin
           cache: maven
 
@@ -77,13 +77,3 @@ jobs:
           push: false
           tags: campus-connect:${{ github.sha }}
 
-  dependency-review:
-    name: Review dependency changes
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Review dependency changes
-        uses: actions/dependency-review-action@v5
