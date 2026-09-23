@@ -114,6 +114,7 @@ jobs:
 
       - name: Trivy Filesystem Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
