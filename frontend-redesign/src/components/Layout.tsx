@@ -80,7 +80,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onViewChange, child
           </div>
 
           {/* Center Workspace Switcher Capsule */}
-          <div className="hidden sm:flex items-center rounded-2xl bg-[#0c0c12] p-1 border border-zinc-800 shadow-inner">
+          <div className="hidden sm:flex items-center rounded-2xl bg-surface-base p-1 border border-zinc-800 shadow-inner">
             <button
               type="button"
               onClick={() => handleWorkspaceSwitch('student')}

@@ -129,7 +129,7 @@ export const LiveAttendanceTicker: React.FC<LiveAttendanceTickerProps> = ({
   const isLive = connectionStatus === 'connected';
 
   return (
-    <Card className={`border-zinc-800 bg-[#0c0c12] p-5 ${className}`}>
+    <Card className={`border-zinc-800 bg-surface-base p-5 ${className}`}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
         <div className="flex items-center gap-2.5">

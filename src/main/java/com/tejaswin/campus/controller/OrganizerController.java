@@ -69,7 +69,7 @@ public class OrganizerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Not Found", "message", "Assigned club not found"));
         }
 
-        long totalEvents = eventRepository.countByClubId(club.getId());
+        long totalEvents = eventRepository.countByClub_Id(club.getId());
         long totalRsvps = registrationRepository.countByEvent_Club_Id(club.getId());
         long totalCheckedIn = registrationRepository.countByEvent_Club_IdAndCheckedInTrue(club.getId());
 
@@ -101,7 +101,7 @@ public class OrganizerController {
         if (clubId == null && user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             events = eventRepository.findAllByOrderByDateTimeDesc();
         } else if (clubId != null) {
-            events = eventRepository.findByClubIdOrderByDateTimeDesc(clubId);
+            events = eventRepository.findByClub_IdOrderByDateTimeDesc(clubId);
         } else {
             events = Collections.emptyList();
         }

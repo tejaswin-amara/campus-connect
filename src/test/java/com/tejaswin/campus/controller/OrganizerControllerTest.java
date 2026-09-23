@@ -154,7 +154,7 @@ class OrganizerControllerTest {
     @Test
     void getMyClub_WithOrganizerAuth_ShouldReturnClubDetails() throws Exception {
         when(clubRepository.findById(1L)).thenReturn(Optional.of(club1));
-        when(eventRepository.countByClubId(1L)).thenReturn(5L);
+        when(eventRepository.countByClub_Id(1L)).thenReturn(5L);
         when(registrationRepository.countByEvent_Club_Id(1L)).thenReturn(120L);
         when(registrationRepository.countByEvent_Club_IdAndCheckedInTrue(1L)).thenReturn(45L);
 
@@ -170,7 +170,7 @@ class OrganizerControllerTest {
 
     @Test
     void getClubEvents_ShouldReturnEventsScopedToClub() throws Exception {
-        when(eventRepository.findByClubIdOrderByDateTimeDesc(1L)).thenReturn(List.of(club1Event));
+        when(eventRepository.findByClub_IdOrderByDateTimeDesc(1L)).thenReturn(List.of(club1Event));
         when(registrationRepository.countByEventId(101L)).thenReturn(12L);
         when(registrationRepository.countByEventIdAndCheckedInTrue(101L)).thenReturn(4L);
 

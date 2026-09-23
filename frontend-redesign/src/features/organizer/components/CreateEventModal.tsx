@@ -70,7 +70,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({ open, onClos
       open={open}
       onClose={handleClose}
       title="Author New Club Event"
-      className="max-w-2xl bg-[#0c0c12] border-zinc-800 text-white"
+      className="max-w-2xl bg-surface-base border-zinc-800 text-white"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2" noValidate>
         {createEventMutation.isError && (

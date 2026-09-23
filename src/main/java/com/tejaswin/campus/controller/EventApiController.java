@@ -75,6 +75,9 @@ public class EventApiController {
     private com.tejaswin.campus.repository.UserRepository userRepository;
 
     @Autowired(required = false)
+    private com.tejaswin.campus.repository.RegistrationRepository registrationRepository;
+
+    @Autowired(required = false)
     private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @PostMapping(value = "/api/events/{id}/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -136,6 +139,16 @@ public class EventApiController {
             ));
         } catch (IllegalStateException e) {
             // Already registered - safe idempotency
+            if (registrationRepository != null) {
+                List<Registration> userRegs = registrationRepository.findByUserIdWithEvent(user.getId());
+                for (Registration r : userRegs) {
+                    if (r.getEvent() != null && id.equals(r.getEvent().getId())) {
+                        ticketCode = r.getTicketCode();
+                        registrationId = r.getId();
+                        break;
+                    }
+                }
+            }
         }
 
         Map<Long, Long> countMap = eventService.getRegistrationCountsMap(List.of(event));
@@ -149,6 +162,48 @@ public class EventApiController {
         }
         response.put("userId", user.getId());
         response.put("registered", true);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/api/events/{id}/ticket", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getTicketPass(@PathVariable Long id) {
+        Event event = eventService.findEventById(id);
+        if (event == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Not Found", "message", "Event not found with ID: " + id));
+        }
+
+        User user = sessionService.getLoggedInUser();
+        if (user == null || user.getId() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized", "message", "User not authenticated"));
+        }
+
+        Registration userReg = null;
+        if (registrationRepository != null) {
+            List<Registration> userRegs = registrationRepository.findByUserIdWithEvent(user.getId());
+            for (Registration r : userRegs) {
+                if (r.getEvent() != null && id.equals(r.getEvent().getId())) {
+                    userReg = r;
+                    break;
+                }
+            }
+        }
+
+        if (userReg == null || userReg.getTicketCode() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Not Found", "message", "No registration ticket found for this user"));
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("eventId", event.getId());
+        response.put("eventTitle", event.getTitle());
+        response.put("category", event.getCategory());
+        response.put("venue", event.getVenue());
+        response.put("ticketCode", userReg.getTicketCode());
+        response.put("studentName", user.getUsername());
+        response.put("rollNumber", user.getRollNumber());
+        response.put("checkedIn", userReg.isCheckedIn());
+        response.put("checkInTime", userReg.getCheckInTime());
+        response.put("registrationDate", userReg.getRegistrationDate());
+
         return ResponseEntity.ok(response);
     }
 

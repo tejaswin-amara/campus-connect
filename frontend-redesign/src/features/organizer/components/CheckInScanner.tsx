@@ -101,7 +101,7 @@ export const CheckInScanner: React.FC<CheckInScannerProps> = ({
   return (
     <div className="space-y-6">
       {/* Event Selection Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-[#0c0c12]/80 p-4 backdrop-blur-xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-surface-base/80 p-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
             <QrCode className="h-5 w-5" />
@@ -139,7 +139,7 @@ export const CheckInScanner: React.FC<CheckInScannerProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Scanner Viewport & Verification Form */}
         <div className="lg:col-span-7 space-y-4">
-          <Card className="border-zinc-800 bg-[#0c0c12] p-6 relative overflow-hidden">
+          <Card className="border-zinc-800 bg-surface-base p-6 relative overflow-hidden">
             {/* Viewfinder Box */}
             <div className="relative aspect-video w-full rounded-2xl border border-dashed border-zinc-700 bg-zinc-950/80 overflow-hidden flex flex-col items-center justify-center">
               {/* Corner Reticles */}
@@ -312,7 +312,7 @@ export const CheckInScanner: React.FC<CheckInScannerProps> = ({
               </div>
             </div>
           ) : (
-            <Card className="border-zinc-800 bg-[#0c0c12] p-6 text-center">
+            <Card className="border-zinc-800 bg-surface-base p-6 text-center">
               <Sparkles className="h-8 w-8 text-zinc-600 mx-auto mb-2" />
               <h4 className="text-sm font-semibold text-white">Scanner Standby</h4>
               <p className="text-xs text-zinc-400 mt-1">
@@ -326,7 +326,7 @@ export const CheckInScanner: React.FC<CheckInScannerProps> = ({
           <LiveAttendanceTicker eventId={activeEventId} eventTitle={currentEvent?.title} />
 
           {/* Recent Check-ins Roster */}
-          <Card className="border-zinc-800 bg-[#0c0c12] p-5">
+          <Card className="border-zinc-800 bg-surface-base p-5">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-zinc-400" />

@@ -88,13 +88,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         className={cn(
           'm-0 border-0 p-0 bg-transparent text-inherit block',
           'relative z-50 w-full max-w-lg overflow-hidden rounded-3xl',
-          'border border-white/10 bg-[#0c0c12] p-0 shadow-2xl backdrop-blur-2xl focus:outline-none',
+          'border border-white/10 bg-surface-base p-0 shadow-2xl backdrop-blur-2xl focus:outline-none',
         )}
       >
         {/* Subtle Aurora effect in header */}
-        <div className="relative h-28 w-full overflow-hidden border-b border-white/10 bg-[#09090f]">
-          <Aurora className="opacity-70" colorStops={['#6366f1', '#06b6d4', '#0c0c12']} />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0c0c12]" />
+        <div className="relative h-28 w-full overflow-hidden border-b border-white/10 bg-surface-base">
+          <Aurora className="opacity-70" colorStops={['#6366f1', '#06b6d4', '#050508']} />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-surface-base" />
 
           <button
             type="button"

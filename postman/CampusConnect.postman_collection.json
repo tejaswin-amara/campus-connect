@@ -1,463 +1,1176 @@
 {
 	"info": {
 		"_postman_id": "c62e5b74-3250-4cb5-9c88-12d458bc0835",
-		"name": "CampusConnect — API Collection & Integration Suite",
-		"description": "Comprehensive API & Web Endpoint collection for CampusConnect (25CS1302E - Database Systems Engineering And Distributed Backend Development). Covers authentication, catalog filtering, student registration, admin workflows, and security boundaries.",
+		"name": "CampusConnect — Multi-Role RBAC & Concurrency Suite",
+		"description": "Comprehensive automated API test collection for CampusConnect. Implements 4 structured test suites across Authentication, Student Discovery & 1-Click RSVP, Scoped Club Lead Workspace & Check-In, and Security Negative Boundaries.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
-	"item": [
-		{
-			"name": "01. System Health & Observability",
-			"item": [
-				{
-					"name": "Actuator Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/actuator/health",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"actuator",
-								"health"
-							]
-						},
-						"description": "Verifies backend service liveness and database connectivity status."
-					},
-					"response": []
-				},
-				{
-					"name": "OpenAPI Specification",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/v3/api-docs",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"v3",
-								"api-docs"
-							]
-						},
-						"description": "Fetches generated OpenAPI documentation contract."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "02. Student Catalog & Discovery",
-			"item": [
-				{
-					"name": "Browse All Events",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/dashboard",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"dashboard"
-							]
-						},
-						"description": "Loads student dashboard with paginated active campus events."
-					},
-					"response": []
-				},
-				{
-					"name": "Filter Events by Category",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/dashboard?category=Technical",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"dashboard"
-							],
-							"query": [
-								{
-									"key": "category",
-									"value": "Technical",
-									"description": "Filter by Technical category (uses idx_events_category_date)"
-								}
-							]
-						},
-						"description": "Optimized category filtering query verified by EXPLAIN ANALYZE (cost 0.70)."
-					},
-					"response": []
-				},
-				{
-					"name": "Search Events by Keyword",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/dashboard?search=Hackathon",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"dashboard"
-							],
-							"query": [
-								{
-									"key": "search",
-									"value": "Hackathon",
-									"description": "Keyword search across title and description"
-								}
-							]
-						},
-						"description": "Searches events matching keyword."
-					},
-					"response": []
-				},
-				{
-					"name": "View Event Detail",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/event/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"event",
-								"1"
-							]
-						},
-						"description": "Retrieves comprehensive event detail page by primary key."
-					},
-					"response": []
-				},
-				{
-					"name": "Fetch Event Poster Image",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/api/public/events/image/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"api",
-								"public",
-								"events",
-								"image",
-								"1"
-							]
-						},
-						"description": "Returns raw cached binary image bytes with ETag and Cache-Control headers."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "03. Student Registration & Concurrency",
-			"item": [
-				{
-					"name": "Register for Event (Interest & Redirect)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/register-external/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"register-external",
-								"1"
-							]
-						},
-						"description": "Executes transactional registration under pessimistic lock and redirects to external ticketing link."
-					},
-					"response": []
-				},
-				{
-					"name": "Duplicate Registration Attempt",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/student/register-external/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"student",
-								"register-external",
-								"1"
-							]
-						},
-						"description": "Submits identical registration for user already enrolled; verified duplicate protection."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "04. Administrative Workflows",
-			"item": [
-				{
-					"name": "Admin Login",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "username",
-									"value": "admin",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "admin123",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/admin/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"admin",
-								"login"
-							]
-						},
-						"description": "Authenticates administrative user, establishes session and Spring Security context."
-					},
-					"response": []
-				},
-				{
-					"name": "Admin Dashboard",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/admin/dashboard",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"admin",
-								"dashboard"
-							]
-						},
-						"description": "Renders admin metrics, category counts, attendee rosters, and system health."
-					},
-					"response": []
-				},
-				{
-					"name": "Create Event Workflow",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "title",
-									"value": "Campus Cyber Defense Challenge 2026",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "Annual inter-collegiate CTF cyber security challenge.",
-									"type": "text"
-								},
-								{
-									"key": "dateTime",
-									"value": "2026-11-20T09:00:00",
-									"type": "text"
-								},
-								{
-									"key": "venue",
-									"value": "Cybersecurity Lab 304",
-									"type": "text"
-								},
-								{
-									"key": "category",
-									"value": "Technical",
-									"type": "text"
-								},
-								{
-									"key": "registrationLink",
-									"value": "https://cyber.campus.edu/register",
-									"type": "text"
-								},
-								{
-									"key": "maxCapacity",
-									"value": "150",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/admin/add-event",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"admin",
-								"add-event"
-							]
-						},
-						"description": "Creates a new campus event with validation, inserting into events table with status PUBLISHED."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "05. Security & Negative Edge Cases",
-			"item": [
-				{
-					"name": "Admin Login - Bad Credentials",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "username",
-									"value": "admin",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "wrongpassword999",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/admin/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"admin",
-								"login"
-							]
-						},
-						"description": "Attempts authentication with wrong credentials; triggers security audit log and redirect with error."
-					},
-					"response": []
-				},
-				{
-					"name": "Unauthorized Admin Access (Student Role)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/admin/dashboard",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"admin",
-								"dashboard"
-							]
-						},
-						"description": "Accessing protected admin dashboard without ROLE_ADMIN triggers HTTP 403 Forbidden or login redirect."
-					},
-					"response": []
-				},
-				{
-					"name": "Add Event - Validation Failure (Past Date)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "title",
-									"value": "Past Event Violation",
-									"type": "text"
-								},
-								{
-									"key": "dateTime",
-									"value": "2020-01-01T09:00:00",
-									"type": "text"
-								},
-								{
-									"key": "venue",
-									"value": "Main Hall",
-									"type": "text"
-								},
-								{
-									"key": "category",
-									"value": "Technical",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/admin/add-event",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"admin",
-								"add-event"
-							]
-						},
-						"description": "Submits event with past start date; triggers validation failure and error flash attribute."
-					},
-					"response": []
-				}
-			]
-		}
-	],
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:9090",
+			"value": "http://localhost:8085",
 			"type": "string"
+		},
+		{
+			"key": "activeEventId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "activeClubId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "generatedTicketCode",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "studentUsername",
+			"value": "student_qa",
+			"type": "string"
+		},
+		{
+			"key": "studentEmail",
+			"value": "student_qa@klh.edu.in",
+			"type": "string"
+		},
+		{
+			"key": "studentPassword",
+			"value": "Password123!",
+			"type": "string"
+		},
+		{
+			"key": "organizerUsername",
+			"value": "organizer",
+			"type": "string"
+		},
+		{
+			"key": "organizerPassword",
+			"value": "Password123!",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "01_Authentication",
+			"description": "Student onboarding, unified session authentication, role claim resolution, and credential invalidation.",
+			"item": [
+				{
+					"name": "01.1 Register New Student Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created or 409 Conflict (idempotent)', function () {",
+									"    pm.expect([201, 409]).to.include(pm.response.code);",
+									"});",
+									"if (pm.response.code === 201) {",
+									"    const json = pm.response.json();",
+									"    pm.test('Response contains valid user summary', function () {",
+									"        pm.expect(json).to.have.property('id');",
+									"        pm.expect(json.username).to.eql(pm.collectionVariables.get('studentUsername'));",
+									"        pm.expect(json.role).to.eql('ROLE_STUDENT');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{studentUsername}}\",\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{studentPassword}}\",\n  \"rollNumber\": \"2100030199\",\n  \"department\": \"Computer Science and Engineering\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registers a new student account enforcing institutional domain validation."
+					},
+					"response": []
+				},
+				{
+					"name": "01.2 Login as Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const json = pm.response.json();",
+									"pm.test('Authenticated principal holds ROLE_STUDENT', function () {",
+									"    pm.expect(json.role).to.eql('ROLE_STUDENT');",
+									"    pm.expect(json.username).to.eql(pm.collectionVariables.get('studentUsername'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{studentUsername}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates student credentials and establishes session cookie."
+					},
+					"response": []
+				},
+				{
+					"name": "01.3 Get Current Session Claims (Student)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const json = pm.response.json();",
+									"pm.test('Session reflects active student identity', function () {",
+									"    pm.expect(json.role).to.eql('ROLE_STUDENT');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Resolves current session security context for student."
+					},
+					"response": []
+				},
+				{
+					"name": "01.4 Reject Invalid Credentials (Negative Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401 Unauthorized', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"pm.test('Response includes error description', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"invalid_user_probe\",\n  \"password\": \"BadPassword!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Verifies that incorrect credentials fail with 401 Unauthorized."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02_Student_Portal",
+			"description": "Event catalogue discovery, full-text search, live capacity interrogation, and 1-click ticket generation.",
+			"item": [
+				{
+					"name": "02.1 Ensure Student Session Active",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{studentUsername}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Establishes student session context for student discovery flows."
+					},
+					"response": []
+				},
+				{
+					"name": "02.2 Browse All Published Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const events = pm.response.json();",
+									"pm.test('Response returns array of events', function () {",
+									"    pm.expect(events).to.be.an('array');",
+									"    pm.expect(events.length).to.be.greaterThan(0);",
+									"});",
+									"if (events.length > 0) {",
+									"    pm.collectionVariables.set('activeEventId', String(events[0].id));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							]
+						},
+						"description": "Fetches published events available for student discovery."
+					},
+					"response": []
+				},
+				{
+					"name": "02.3 Filter Events by Category & Search Keyword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const events = pm.response.json();",
+									"pm.test('Returned events match array type', function () {",
+									"    pm.expect(events).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events?category=Technical",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Technical"
+								}
+							]
+						},
+						"description": "Validates indexed multi-criteria filtering for fast catalog querying."
+					},
+					"response": []
+				},
+				{
+					"name": "02.4 Get Event Detail & Real-Time Seat Availability",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const event = pm.response.json();",
+									"pm.test('Event payload satisfies schema and capacity constraints', function () {",
+									"    pm.expect(event).to.have.property('id');",
+									"    pm.expect(event).to.have.property('title');",
+									"    pm.expect(event).to.have.property('maxCapacity');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/{{activeEventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"{{activeEventId}}"
+							]
+						},
+						"description": "Retrieves comprehensive event specification and seat metrics."
+					},
+					"response": []
+				},
+				{
+					"name": "02.5 Student One-Click RSVP (Registration)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 201 OK', function () {",
+									"    pm.expect([200, 201]).to.include(pm.response.code);",
+									"});",
+									"const json = pm.response.json();",
+									"pm.test('Registration produces official ticket pass code', function () {",
+									"    pm.expect(json).to.have.property('ticketCode');",
+									"    pm.expect(json.ticketCode).to.be.a('string').and.not.be.empty;",
+									"    pm.collectionVariables.set('generatedTicketCode', json.ticketCode);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentName\": \"Automated Postman QA\",\n  \"rollNumber\": \"2100030199\",\n  \"email\": \"{{studentEmail}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/{{activeEventId}}/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"{{activeEventId}}",
+								"register"
+							]
+						},
+						"description": "Performs atomic student RSVP registration protected against overselling."
+					},
+					"response": []
+				},
+				{
+					"name": "02.6 Public Real-Time Telemetry SSE Stream",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Content-Type header indicates SSE event stream', function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/event-stream');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/event-stream"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/{{activeEventId}}/telemetry-stream?probe=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"{{activeEventId}}",
+								"telemetry-stream"
+							],
+							"query": [
+								{
+									"key": "probe",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Subscribes to live Server-Sent Events (SSE) telemetry for capacity changes."
+					},
+					"response": []
+				},
+				{
+					"name": "02.7 Retrieve Digital Ticket Pass",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const json = pm.response.json();",
+									"pm.test('Ticket details include verified passcode and event credentials', function () {",
+									"    pm.expect(json).to.have.property('ticketCode');",
+									"    pm.expect(json).to.have.property('eventTitle');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/{{activeEventId}}/ticket",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"{{activeEventId}}",
+								"ticket"
+							]
+						},
+						"description": "Fetches verifiable QR ticket pass credentials for the authenticated attendee."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03_Organizer_Workspace",
+			"description": "Club Studio operations, event authoring, attendee roster access, live scanner check-in, and SSE telemetry stream.",
+			"item": [
+				{
+					"name": "03.1 Authenticate as Club Organizer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const json = pm.response.json();",
+									"pm.test('Authenticated principal holds ROLE_ORGANIZER', function () {",
+									"    pm.expect(json.role).to.eql('ROLE_ORGANIZER');",
+									"});",
+									"if (json.clubId) {",
+									"    pm.collectionVariables.set('activeClubId', String(json.clubId));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{organizerUsername}}\",\n  \"password\": \"{{organizerPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates organizer credentials and verifies club scope binding."
+					},
+					"response": []
+				},
+				{
+					"name": "03.2 Fetch Authenticated Club Studio Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const club = pm.response.json();",
+									"pm.test('Club metadata is scoped to the organizer', function () {",
+									"    pm.expect(club).to.have.property('name');",
+									"    pm.expect(club).to.have.property('category');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/clubs/my-club",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"clubs",
+								"my-club"
+							]
+						},
+						"description": "Retrieves the club entity scoped to the authenticated club lead."
+					},
+					"response": []
+				},
+				{
+					"name": "03.3 Fetch Club Scoped Events & Metrics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const events = pm.response.json();",
+									"pm.test('Club events array is returned', function () {",
+									"    pm.expect(events).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events"
+							]
+						},
+						"description": "Lists all events authored by and scoped to the active club lead."
+					},
+					"response": []
+				},
+				{
+					"name": "03.4 Author New Club Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201 Created', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"const event = pm.response.json();",
+									"pm.test('Created event reflects published parameters', function () {",
+									"    pm.expect(event).to.have.property('id');",
+									"    pm.expect(event.title).to.include('Postman API Summit');",
+									"    pm.expect(event.maxCapacity).to.eql(150);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Postman API Summit 2026\",\n  \"description\": \"Comprehensive microservice test automation and verification workshop.\",\n  \"dateTime\": \"2026-11-20T10:00:00\",\n  \"venue\": \"Innovation Hall 101\",\n  \"category\": \"Technical\",\n  \"maxCapacity\": 150,\n  \"status\": \"PUBLISHED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events"
+							]
+						},
+						"description": "Creates a new club event strictly bound to the authenticated organizer's chapter."
+					},
+					"response": []
+				},
+				{
+					"name": "03.5 Verify Attendee via Live Scanner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK or 400 for already checked in', function () {",
+									"    pm.expect([200, 400]).to.include(pm.response.code);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    const res = pm.response.json();",
+									"    pm.test('Check-in status confirmed verified', function () {",
+									"        pm.expect(res.checkedIn).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ticketCode\": \"{{generatedTicketCode}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events/{{activeEventId}}/check-in",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events",
+								"{{activeEventId}}",
+								"check-in"
+							]
+						},
+						"description": "Validates attendee ticket code and atomically transitions attendance status."
+					},
+					"response": []
+				},
+				{
+					"name": "03.6 Fetch Event Attendee Roster",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const attendees = pm.response.json();",
+									"pm.test('Attendee roster returns registered attendees', function () {",
+									"    pm.expect(attendees).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events/{{activeEventId}}/attendees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events",
+								"{{activeEventId}}",
+								"attendees"
+							]
+						},
+						"description": "Exports attendee check-in and registration roster for the club event."
+					},
+					"response": []
+				},
+				{
+					"name": "03.7 Organizer Live Check-in Stream Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Content-Type header indicates SSE event stream', function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/event-stream');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/event-stream"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events/{{activeEventId}}/live-checkin-stream?probe=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events",
+								"{{activeEventId}}",
+								"live-checkin-stream"
+							],
+							"query": [
+								{
+									"key": "probe",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Subscribes to live Server-Sent Events (SSE) telemetry for verified check-in events."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "04_Security_Negative_Tests",
+			"description": "Adversarial tests validating RBAC boundaries, forbidden mutations, unauthenticated rejections, and malformed inputs.",
+			"item": [
+				{
+					"name": "04.1 Invalidate Session (Logout)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Terminates active session and invalidates JSESSIONID cookie."
+					},
+					"response": []
+				},
+				{
+					"name": "04.2 Reject Unauthenticated Organizer Workspace Access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401 Unauthorized or 403 Forbidden', function () {",
+									"    pm.expect([401, 403]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/clubs/my-club",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"clubs",
+								"my-club"
+							]
+						},
+						"description": "Guards that anonymous requests cannot access organizer club resources."
+					},
+					"response": []
+				},
+				{
+					"name": "04.3 Login as Student for Privilege Escalation Probe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{studentUsername}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates student credentials for subsequent negative RBAC boundary probes."
+					},
+					"response": []
+				},
+				{
+					"name": "04.4 Reject Student Access to Organizer Workspace",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 403 Forbidden', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events"
+							]
+						},
+						"description": "Verifies that students with ROLE_STUDENT cannot access organizer event endpoints."
+					},
+					"response": []
+				},
+				{
+					"name": "04.5 Reject Student Access to Club Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 403 Forbidden', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/clubs/my-club",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"clubs",
+								"my-club"
+							]
+						},
+						"description": "Verifies that students cannot access club lead workspace metadata."
+					},
+					"response": []
+				},
+				{
+					"name": "04.6 Authenticate as Organizer for Boundary Tests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{organizerUsername}}\",\n  \"password\": \"{{organizerPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates as organizer to perform input validation negative tests."
+					},
+					"response": []
+				},
+				{
+					"name": "04.7 Reject Malformed Ticket Code Check-in",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400 Bad Request or 404 Not Found', function () {",
+									"    pm.expect([400, 404]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ticketCode\": \"MALFORMED_FAKE_TICKET_999\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/organizer/events/{{activeEventId}}/check-in",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"organizer",
+								"events",
+								"{{activeEventId}}",
+								"check-in"
+							]
+						},
+						"description": "Ensures fake or malformed ticket scan requests are safely rejected."
+					},
+					"response": []
+				},
+				{
+					"name": "04.8 Reject Registration on Nonexistent Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400 Bad Request or 404 Not Found', function () {",
+									"    pm.expect([400, 404, 409]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentName\": \"Overflow Tester\",\n  \"rollNumber\": \"2100030999\",\n  \"email\": \"overflow@klh.edu.in\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/99999/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"99999",
+								"register"
+							]
+						},
+						"description": "Verifies that registration on nonexistent events is blocked."
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

@@ -38,7 +38,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
     if (fallback) return <>{fallback}</>;
     return (
       <div className="flex min-h-[50vh] items-center justify-center p-6">
-        <Card className="max-w-md w-full border-zinc-800 bg-[#0c0c12]/95 p-8 text-center shadow-2xl backdrop-blur-xl">
+        <Card className="max-w-md w-full border-zinc-800 bg-surface-base/95 p-8 text-center shadow-2xl backdrop-blur-xl">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-5">
             <Lock className="h-7 w-7" />
           </div>
@@ -75,7 +75,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
     if (fallback) return <>{fallback}</>;
     return (
       <div className="flex min-h-[50vh] items-center justify-center p-6">
-        <Card className="max-w-md w-full border-rose-900/40 bg-[#0c0c12]/95 p-8 text-center shadow-2xl backdrop-blur-xl">
+        <Card className="max-w-md w-full border-rose-900/40 bg-surface-base/95 p-8 text-center shadow-2xl backdrop-blur-xl">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 mb-5">
             <AlertTriangle className="h-7 w-7" />
           </div>

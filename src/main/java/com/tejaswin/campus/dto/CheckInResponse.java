@@ -31,6 +31,14 @@ public class CheckInResponse {
         this.success = success;
     }
 
+    public boolean isCheckedIn() {
+        return success;
+    }
+
+    public void setCheckedIn(boolean checkedIn) {
+        this.success = checkedIn;
+    }
+
     public String getMessage() {
         return message;
     }

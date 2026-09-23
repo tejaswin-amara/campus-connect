@@ -22,8 +22,14 @@ public class EventTelemetryController {
      * Publicly accessible by student clients and dashboard visitors.
      */
     @GetMapping(value = "/api/events/{id}/telemetry-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamEventTelemetry(@PathVariable Long id) {
-        return telemetryService.subscribeCapacity(id);
+    public SseEmitter streamEventTelemetry(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "false") boolean probe) {
+        SseEmitter emitter = telemetryService.subscribeCapacity(id);
+        if (probe) {
+            emitter.complete();
+        }
+        return emitter;
     }
 
     /**
@@ -32,7 +38,16 @@ public class EventTelemetryController {
      */
     @GetMapping(value = "/api/organizer/events/{id}/live-checkin-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
-    public SseEmitter streamLiveCheckIns(@PathVariable Long id) {
-        return telemetryService.subscribeCheckIn(id);
+    public SseEmitter streamLiveCheckIns(
+            @PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestParam(required = false, defaultValue = "false") boolean probe) {
+        SseEmitter emitter = telemetryService.subscribeCheckIn(id);
+        if (probe) {
+            try {
+                emitter.send(SseEmitter.event().name("ping").data("connected"));
+            } catch (Exception ignored) {}
+            emitter.complete();
+        }
+        return emitter;
     }
 }

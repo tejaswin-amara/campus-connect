@@ -60,7 +60,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE (e.endDateTime IS NOT NULL AND e.endDateTime < :now) OR (e.endDateTime IS NULL AND e.dateTime < :now)")
     Page<Event> findPastEventsPage(@Param("now") LocalDateTime now, Pageable pageable);
 
-    List<Event> findByClubIdOrderByDateTimeDesc(Long clubId);
+    List<Event> findByClub_IdOrderByDateTimeDesc(Long clubId);
 
-    long countByClubId(Long clubId);
+    long countByClub_Id(Long clubId);
 }

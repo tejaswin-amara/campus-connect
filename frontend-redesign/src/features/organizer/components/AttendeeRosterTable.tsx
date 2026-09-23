@@ -93,7 +93,7 @@ export const AttendeeRosterTable: React.FC<AttendeeRosterTableProps> = ({
   return (
     <div className="space-y-5">
       {/* Event Header & Action Bar */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-[#0c0c12]/80 p-5 backdrop-blur-xl">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-surface-base/80 p-5 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
             <Users className="h-6 w-6" />
@@ -196,7 +196,7 @@ export const AttendeeRosterTable: React.FC<AttendeeRosterTableProps> = ({
       </div>
 
       {/* Roster Table */}
-      <Card className="border-zinc-800 bg-[#0c0c12] overflow-hidden">
+      <Card className="border-zinc-800 bg-surface-base overflow-hidden">
         {isLoading ? (
           <div className="p-6 space-y-3">
             <Skeleton className="h-8 w-full" />

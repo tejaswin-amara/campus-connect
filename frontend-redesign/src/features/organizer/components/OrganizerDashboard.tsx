@@ -79,7 +79,7 @@ export const OrganizerDashboard: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="max-w-2xl mx-auto my-12 p-8 text-center rounded-3xl border border-rose-900/50 bg-[#0c0c12] shadow-2xl">
+      <div className="max-w-2xl mx-auto my-12 p-8 text-center rounded-3xl border border-rose-900/50 bg-surface-base shadow-2xl">
         <AlertCircle className="h-12 w-12 text-rose-400 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-white mb-2">Club Workspace Sync Error</h2>
         <p className="text-xs text-zinc-400 mb-6">
@@ -107,7 +107,7 @@ export const OrganizerDashboard: React.FC = () => {
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       {/* Club Studio Banner Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-[#0c0c12] p-6 sm:p-8 backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-surface-base p-6 sm:p-8 backdrop-blur-xl">
         {/* Subtle glow layer */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
 
@@ -157,7 +157,7 @@ export const OrganizerDashboard: React.FC = () => {
       {/* Telemetry Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <SpotlightCard
-          className="p-5 border-zinc-800 bg-[#0c0c12]/90 rounded-2xl"
+          className="p-5 border-zinc-800 bg-surface-base/90 rounded-2xl"
           spotlightColor="rgba(99, 102, 241, 0.15)"
         >
           <div className="flex items-center justify-between text-zinc-400 mb-2">
@@ -174,7 +174,7 @@ export const OrganizerDashboard: React.FC = () => {
         </SpotlightCard>
 
         <SpotlightCard
-          className="p-5 border-zinc-800 bg-[#0c0c12]/90 rounded-2xl"
+          className="p-5 border-zinc-800 bg-surface-base/90 rounded-2xl"
           spotlightColor="rgba(6, 182, 212, 0.15)"
         >
           <div className="flex items-center justify-between text-zinc-400 mb-2">
@@ -190,7 +190,7 @@ export const OrganizerDashboard: React.FC = () => {
         </SpotlightCard>
 
         <SpotlightCard
-          className="p-5 border-zinc-800 bg-[#0c0c12]/90 rounded-2xl"
+          className="p-5 border-zinc-800 bg-surface-base/90 rounded-2xl"
           spotlightColor="rgba(16, 185, 129, 0.15)"
         >
           <div className="flex items-center justify-between text-zinc-400 mb-2">
@@ -258,7 +258,7 @@ export const OrganizerDashboard: React.FC = () => {
       {activeTab === 'events' && (
         <div className="space-y-4">
           {events.length === 0 ? (
-            <Card className="border-zinc-800 bg-[#0c0c12] p-12 text-center">
+            <Card className="border-zinc-800 bg-surface-base p-12 text-center">
               <Calendar className="h-12 w-12 text-zinc-600 mx-auto mb-3" />
               <h3 className="text-base font-bold text-white mb-1">No Club Events Published</h3>
               <p className="text-xs text-zinc-500 max-w-md mx-auto mb-6">
@@ -287,7 +287,7 @@ export const OrganizerDashboard: React.FC = () => {
                 return (
                   <SpotlightCard
                     key={event.id}
-                    className="p-5 border-zinc-800 bg-[#0c0c12] rounded-2xl flex flex-col justify-between"
+                    className="p-5 border-zinc-800 bg-surface-base rounded-2xl flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
