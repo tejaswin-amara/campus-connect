@@ -22,6 +22,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.id = :id")
     Optional<Event> findByIdForUpdate(@Param("id") Long id);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Event e WHERE e.id = :id")
+    Optional<Event> findByIdWithPessimisticLock(@Param("id") Long id);
+
     List<Event> findAllByOrderByDateTimeDesc();
 
     Page<Event> findAllByOrderByDateTimeDesc(Pageable pageable);
@@ -55,4 +59,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e WHERE (e.endDateTime IS NOT NULL AND e.endDateTime < :now) OR (e.endDateTime IS NULL AND e.dateTime < :now)")
     Page<Event> findPastEventsPage(@Param("now") LocalDateTime now, Pageable pageable);
+
+    List<Event> findByClubIdOrderByDateTimeDesc(Long clubId);
+
+    long countByClubId(Long clubId);
 }

@@ -4,31 +4,60 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* OLED-Dark True Black Palette */
+    --bg-canvas: 240 23% 2%; /* #050508 true black */
+    --surface-base: 240 20% 6%; /* #0c0c12 */
+    --surface-raised: 240 20% 10%; /* #14141e */
+    --surface-overlay: 243 21% 14%; /* #1c1c2b */
+    --border-subtle: 240 18% 15%; /* #20202e */
+    --border-strong: 240 19% 23%; /* #303046 */
+
+    /* Brand Accents */
+    --brand-primary: 184 100% 50%; /* #00f0ff Electric Cyan */
+    --brand-accent: 239 84% 67%; /* #6366f1 Neon Indigo */
+    --brand-glow: 184 100% 50%;
+
+    /* Typography & Text */
+    --text-primary: 210 40% 98%; /* #f8fafc */
+    --text-secondary: 215 20% 65%; /* #94a3b8 */
+    --text-muted: 215 20% 65%; /* #94a3b8 contrast ratio 7.13:1 on #14141e */
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: hsl(var(--bg-canvas));
+    color: hsl(var(--text-primary));
+    min-height: 100vh;
+    overflow-x: hidden;
   }
 }
 
-/* Custom Scrollbar */
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom OLED-Dark Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: hsl(var(--bg-canvas));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: hsl(var(--border-strong));
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: hsl(var(--brand-primary) / 0.4);
 }

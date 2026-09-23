@@ -1,0 +1,24 @@
+# CampusConnect Monorepo Quality Gate (Lefthook)
+pre-commit:
+  parallel: true
+  commands:
+    backend-compile:
+      glob: "src/**/*.java"
+      run: ./mvnw -B test-compile -DskipTests
+    frontend-typecheck:
+      root: "frontend-redesign/"
+      glob: "*.{ts,tsx}"
+      run: pnpm exec tsc --noEmit
+    frontend-lint:
+      root: "frontend-redesign/"
+      glob: "*.{ts,tsx,js,jsx,json}"
+      run: pnpm exec biome check src/ tests/
+    frontend-test:
+      root: "frontend-redesign/"
+      glob: "*.{ts,tsx}"
+      run: pnpm exec vitest run
+
+commit-msg:
+  commands:
+    commitlint:
+      run: node scripts/check-commit-msg.cjs {1}

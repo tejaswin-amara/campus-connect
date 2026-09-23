@@ -1,58 +1,55 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  darkMode: 'class',
+  darkMode: ['class'],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        background: '#09090b',
-        foreground: '#f8fafc',
-        card: {
-          DEFAULT: '#181824',
-          foreground: '#f8fafc',
-          hover: '#222232',
-        },
-        surface: '#121218',
-        elevated: '#262638',
         primary: {
-          DEFAULT: '#6366f1',
-          foreground: '#ffffff',
+          DEFAULT: 'hsl(var(--brand-primary) / <alpha-value>)',
           hover: '#4f46e5',
-          light: '#818cf8',
-        },
-        secondary: {
-          DEFAULT: '#262638',
-          foreground: '#f1f5f9',
-        },
-        muted: {
-          DEFAULT: '#262638',
-          foreground: '#94a3b8',
-        },
-        accent: {
-          DEFAULT: '#f97316',
           foreground: '#ffffff',
-          hover: '#ea580c',
         },
-        category: {
-          technical: '#6366f1',
-          cultural: '#ec4899',
-          sports: '#10b981',
-          workshop: '#f59e0b',
-          seminar: '#06b6d4',
-        }
+        card: {
+          DEFAULT: 'hsl(var(--surface-raised) / <alpha-value>)',
+          foreground: 'hsl(var(--text-primary) / <alpha-value>)',
+        },
+        background: 'hsl(var(--bg-canvas) / <alpha-value>)', // #050508 true black
+        surface: {
+          base: 'hsl(var(--surface-base) / <alpha-value>)', // #0c0c12 background base
+          raised: 'hsl(var(--surface-raised) / <alpha-value>)', // #14141e cards/modals
+          overlay: 'hsl(var(--surface-overlay) / <alpha-value>)', // #1c1c2b popovers/drawers
+        },
+        border: {
+          subtle: 'hsl(var(--border-subtle) / <alpha-value>)', // #20202e
+          strong: 'hsl(var(--border-strong) / <alpha-value>)', // #303046
+        },
+        brand: {
+          primary: 'hsl(var(--brand-primary) / <alpha-value>)', // Electric Cyan #00f0ff
+          accent: 'hsl(var(--brand-accent) / <alpha-value>)', // Neon Indigo #6366f1
+          glow: 'hsl(var(--brand-glow) / <alpha-value>)',
+        },
+        status: {
+          success: '#10b981',
+          warning: '#f59e0b',
+          danger: '#f43f5e',
+          info: '#0ea5e9',
+        },
       },
-      borderRadius: {
-        lg: '16px',
-        md: '10px',
-        sm: '6px',
+      fontFamily: {
+        sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['Geist Mono', 'JetBrains Mono', 'monospace'],
+      },
+      backdropBlur: {
+        glass: '16px',
+        heavy: '24px',
       },
       boxShadow: {
-        glow: '0 0 24px -4px rgba(99, 102, 241, 0.25)',
-      }
+        glow: '0 0 24px -4px rgba(0, 240, 255, 0.25)',
+        'glow-cyan': '0 0 24px -4px rgba(0, 240, 255, 0.25)',
+        'glow-indigo': '0 0 24px -4px rgba(99, 102, 241, 0.25)',
+      },
     },
   },
   plugins: [],
-}
+};

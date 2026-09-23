@@ -74,6 +74,12 @@ node_modules/
 **/node_modules/
 dist/
 **/dist/
+test-results/
+**/test-results/
+playwright-report/
+**/playwright-report/
+coverage/
+**/coverage/
 .qodo/
 .tools/
 hs_err_pid*

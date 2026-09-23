@@ -1,11 +1,15 @@
-import React from 'react';
+import type React from 'react';
 import { cn } from '../../lib/utils';
 
-export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  children,
+  ...props
+}) => (
   <div
     className={cn(
       'rounded-2xl border border-white/10 bg-card/90 backdrop-blur-md text-card-foreground shadow-lg transition-all duration-300 hover:border-primary/40 hover:shadow-glow',
-      className
+      className,
     )}
     {...props}
   >
@@ -13,19 +17,31 @@ export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className
   </div>
 );
 
-export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  children,
+  ...props
+}) => (
   <div className={cn('flex flex-col space-y-1.5 p-6', className)} {...props}>
     {children}
   </div>
 );
 
-export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({ className, children, ...props }) => (
+export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  className,
+  children,
+  ...props
+}) => (
   <h3 className={cn('text-lg font-bold tracking-tight text-white', className)} {...props}>
     {children}
   </h3>
 );
 
-export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
+export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  children,
+  ...props
+}) => (
   <div className={cn('p-6 pt-0', className)} {...props}>
     {children}
   </div>

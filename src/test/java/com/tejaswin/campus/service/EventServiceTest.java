@@ -1,6 +1,7 @@
 package com.tejaswin.campus.service;
 
 import com.tejaswin.campus.model.Event;
+import com.tejaswin.campus.model.Registration;
 import com.tejaswin.campus.model.User;
 import com.tejaswin.campus.repository.EventRepository;
 import com.tejaswin.campus.repository.RegistrationRepository;
@@ -156,12 +157,14 @@ public class EventServiceTest {
         Long userId = 10L;
 
         when(registrationRepository.existsByUserIdAndEventId(userId, eventId)).thenReturn(false);
-        when(eventRepository.findByIdForUpdate(eventId))
+        when(eventRepository.findByIdWithPessimisticLock(eventId))
                 .thenReturn(Optional.of(new Event(eventId, "E", "D", LocalDateTime.now(), "V", "T")));
 
         User user = new User();
         user.setId(userId);
+        user.setUsername("student1");
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(registrationRepository.save(any(Registration.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         boolean result = eventService.registerStudent(eventId, userId);
 
@@ -171,6 +174,8 @@ public class EventServiceTest {
 
     @Test
     void testRegisterStudentDuplicate() {
+        when(eventRepository.findByIdWithPessimisticLock(1L))
+                .thenReturn(Optional.of(new Event(1L, "E", "D", LocalDateTime.now(), "V", "T")));
         when(registrationRepository.existsByUserIdAndEventId(10L, 1L)).thenReturn(true);
 
         boolean result = eventService.registerStudent(1L, 10L);
@@ -181,9 +186,7 @@ public class EventServiceTest {
 
     @Test
     void testRegisterStudentInvalidEvent() {
-        when(registrationRepository.existsByUserIdAndEventId(10L, 999L)).thenReturn(false);
-        when(eventRepository.findByIdForUpdate(999L)).thenReturn(Optional.empty());
-        when(userRepository.findById(10L)).thenReturn(Optional.of(new User()));
+        when(eventRepository.findByIdWithPessimisticLock(999L)).thenReturn(Optional.empty());
 
         boolean result = eventService.registerStudent(999L, 10L);
 

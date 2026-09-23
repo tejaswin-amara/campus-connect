@@ -1,0 +1,617 @@
+openapi: 3.1.0
+info:
+  title: CampusConnect Multi-Role Auth & Organizer API
+  description: OpenAPI 3.1 specifications for Multi-Role Authentication, RBAC, and Scoped Club Lead Workspaces.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local Development Server
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register Student Account
+      description: Self-service student enrollment with institutional domain verification (@klh.edu.in or .edu).
+      operationId: registerStudent
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummaryResponse'
+        '400':
+          description: Validation failure or invalid email domain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Username or email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      summary: Unified User Login
+      description: Authenticates student, organizer, or admin credentials and sets session context.
+      operationId: loginUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummaryResponse'
+        '401':
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      summary: Current Session Claims
+      description: Resolves authenticated principal from the active session context.
+      operationId: getCurrentUser
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Active session found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummaryResponse'
+        '401':
+          description: Unauthenticated session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      summary: Revoke Session
+      description: Clears security context and invalidates the active HTTP session cookie.
+      operationId: logoutUser
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out successfully
+
+  /api/organizer/clubs/my-club:
+    get:
+      summary: Get Authenticated Club Details
+      description: Returns metadata, club lead information, and aggregate metrics for the organizer's assigned club.
+      operationId: getMyClub
+      tags:
+        - Organizer Studio
+      responses:
+        '200':
+          description: Club details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubDetailResponse'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not an organizer or admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/organizer/events:
+    get:
+      summary: List Club Events
+      description: Retrieves events strictly scoped to the organizer's assigned club.
+      operationId: getClubEvents
+      tags:
+        - Organizer Studio
+      responses:
+        '200':
+          description: List of scoped events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizerEventItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Club Event
+      description: Authors an event automatically bound to the organizer's club with draft or published status.
+      operationId: createClubEvent
+      tags:
+        - Organizer Studio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClubEventRequest'
+      responses:
+        '201':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizerEventItem'
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/organizer/events/{id}/attendees:
+    get:
+      summary: Get Event Attendee Roster
+      description: Returns attendees for an event, guarded by club ownership check.
+      operationId: getEventAttendees
+      tags:
+        - Organizer Studio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Event ID
+      responses:
+        '200':
+          description: Attendee roster
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttendeeItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Not authorized for this event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/organizer/events/{id}/check-in:
+    post:
+      summary: Check In Attendee
+      description: Verifies attendee ticket code or roll number and flips checked_in status.
+      operationId: checkInAttendee
+      tags:
+        - Organizer Studio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Event ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+      responses:
+        '200':
+          description: Check-in verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckInResponse'
+        '400':
+          description: Attendee already checked in or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Registration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+        - rollNumber
+        - department
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: tejaswin
+        email:
+          type: string
+          format: email
+          example: tejaswin@klh.edu.in
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          example: password123
+        rollNumber:
+          type: string
+          example: 2100030101
+        department:
+          type: string
+          example: Computer Science and Engineering
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: organizer
+        password:
+          type: string
+          example: password123
+
+    UserSummaryResponse:
+      type: object
+      required:
+        - id
+        - username
+        - email
+        - role
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: organizer
+        email:
+          type: string
+          example: organizer@campus.edu
+        role:
+          type: string
+          enum: [ROLE_STUDENT, ROLE_ORGANIZER, ROLE_ADMIN]
+          example: ROLE_ORGANIZER
+        clubId:
+          type: integer
+          nullable: true
+          example: 1
+        clubName:
+          type: string
+          nullable: true
+          example: ACM Student Chapter
+        rollNumber:
+          type: string
+          nullable: true
+          example: KLH2024CS001
+        department:
+          type: string
+          nullable: true
+          example: Computer Science
+
+    ClubDetailResponse:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - category
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: ACM Student Chapter
+        slug:
+          type: string
+          example: acm-klh
+        category:
+          type: string
+          example: Technical
+        description:
+          type: string
+          example: Official Association for Computing Machinery student chapter.
+        logoUrl:
+          type: string
+          example: /images/clubs/acm.png
+        leadUserId:
+          type: integer
+          nullable: true
+          example: 2
+        totalEvents:
+          type: integer
+          example: 5
+        totalRsvps:
+          type: integer
+          example: 142
+        totalCheckedIn:
+          type: integer
+          example: 98
+
+    CreateClubEventRequest:
+      type: object
+      required:
+        - title
+        - description
+        - dateTime
+        - venue
+        - category
+        - maxCapacity
+      properties:
+        title:
+          type: string
+          example: Hacktoberfest Kickoff
+        description:
+          type: string
+          example: Annual open source contribution kickoff hackathon.
+        dateTime:
+          type: string
+          format: date-time
+          example: '2026-10-01T10:00:00'
+        endDateTime:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-10-01T16:00:00'
+        venue:
+          type: string
+          example: Main Auditorium
+        category:
+          type: string
+          example: Technical
+        status:
+          type: string
+          enum: [DRAFT, PUBLISHED]
+          default: PUBLISHED
+          example: PUBLISHED
+        maxCapacity:
+          type: integer
+          minimum: 1
+          example: 120
+        registrationLink:
+          type: string
+          nullable: true
+          example: https://campus.edu/rsvp
+        imageUrl:
+          type: string
+          nullable: true
+          example: /images/hacktoberfest.png
+
+    OrganizerEventItem:
+      type: object
+      required:
+        - id
+        - title
+        - dateTime
+        - venue
+        - category
+        - status
+        - maxCapacity
+        - registeredCount
+        - checkedInCount
+      properties:
+        id:
+          type: integer
+          example: 10
+        title:
+          type: string
+          example: Hacktoberfest Kickoff
+        description:
+          type: string
+          example: Annual open source contribution kickoff hackathon.
+        dateTime:
+          type: string
+          format: date-time
+          example: '2026-10-01T10:00:00'
+        endDateTime:
+          type: string
+          format: date-time
+          nullable: true
+        venue:
+          type: string
+          example: Main Auditorium
+        category:
+          type: string
+          example: Technical
+        status:
+          type: string
+          example: PUBLISHED
+        maxCapacity:
+          type: integer
+          example: 120
+        registeredCount:
+          type: integer
+          example: 45
+        checkedInCount:
+          type: integer
+          example: 12
+        clubId:
+          type: integer
+          example: 1
+        clubName:
+          type: string
+          example: ACM Student Chapter
+
+    AttendeeItem:
+      type: object
+      required:
+        - registrationId
+        - userId
+        - username
+        - email
+        - checkedIn
+        - registrationDate
+      properties:
+        registrationId:
+          type: integer
+          example: 101
+        userId:
+          type: integer
+          example: 5
+        username:
+          type: string
+          example: student1
+        email:
+          type: string
+          example: student1@klh.edu.in
+        rollNumber:
+          type: string
+          nullable: true
+          example: 2100030101
+        department:
+          type: string
+          nullable: true
+          example: CSE
+        checkedIn:
+          type: boolean
+          example: false
+        checkInTime:
+          type: string
+          format: date-time
+          nullable: true
+        ticketCode:
+          type: string
+          nullable: true
+          example: TKT-ACM-2026-X9Y2
+        registrationDate:
+          type: string
+          format: date-time
+          example: '2026-09-22T14:30:00'
+        status:
+          type: string
+          example: CONFIRMED
+
+    CheckInRequest:
+      type: object
+      properties:
+        ticketCode:
+          type: string
+          example: TKT-ACM-2026-X9Y2
+        rollNumber:
+          type: string
+          example: 2100030101
+
+    CheckInResponse:
+      type: object
+      required:
+        - success
+        - message
+        - attendeeName
+        - checkInTime
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Attendee checked in successfully
+        attendeeName:
+          type: string
+          example: student1
+        rollNumber:
+          type: string
+          example: 2100030101
+        ticketCode:
+          type: string
+          example: TKT-ACM-2026-X9Y2
+        checkInTime:
+          type: string
+          format: date-time
+          example: '2026-09-23T10:15:30'
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Invalid institutional email domain
+        status:
+          type: integer
+          example: 400
+        timestamp:
+          type: string
+          format: date-time

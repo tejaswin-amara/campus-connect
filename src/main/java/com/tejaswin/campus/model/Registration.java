@@ -26,6 +26,15 @@ public class Registration {
     @Column(nullable = false)
     private String status = "INTERESTED";
 
+    @Column(name = "checked_in", nullable = false)
+    private boolean checkedIn = false;
+
+    @Column(name = "check_in_time")
+    private LocalDateTime checkInTime;
+
+    @Column(name = "ticket_code", length = 64, unique = true)
+    private String ticketCode;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -67,6 +76,30 @@ public class Registration {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public boolean isCheckedIn() {
+        return checkedIn;
+    }
+
+    public void setCheckedIn(boolean checkedIn) {
+        this.checkedIn = checkedIn;
+    }
+
+    public LocalDateTime getCheckInTime() {
+        return checkInTime;
+    }
+
+    public void setCheckInTime(LocalDateTime checkInTime) {
+        this.checkInTime = checkInTime;
+    }
+
+    public String getTicketCode() {
+        return ticketCode;
+    }
+
+    public void setTicketCode(String ticketCode) {
+        this.ticketCode = ticketCode;
     }
 
     public User getUser() {

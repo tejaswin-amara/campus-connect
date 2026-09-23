@@ -27,6 +27,12 @@ import com.tejaswin.campus.security.SecurityAuditLogger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.tejaswin.campus.event.RegistrationCompletedEvent;
+import com.tejaswin.campus.exception.EventCapacityExhaustedException;
+import com.tejaswin.campus.exception.EventNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+
 @Service
 public class EventService {
     private static final Logger logger = LoggerFactory.getLogger(EventService.class);
@@ -37,25 +43,34 @@ public class EventService {
 
     private final UserRepository userRepository;
     private final SecurityAuditLogger auditLogger;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif");
 
     /**
      * Constructs the EventService with required repositories and logger.
-     *
-     * @param eventRepository        repository for events
-     * @param registrationRepository repository for registrations
-     * @param userRepository         repository for users
-     * @param auditLogger            logger for security events
      */
     public EventService(EventRepository eventRepository,
             RegistrationRepository registrationRepository,
             UserRepository userRepository,
             SecurityAuditLogger auditLogger) {
+        this(eventRepository, registrationRepository, userRepository, auditLogger, null);
+    }
+
+    /**
+     * Constructs the EventService with event publisher for domain telemetry events.
+     */
+    @Autowired
+    public EventService(EventRepository eventRepository,
+            RegistrationRepository registrationRepository,
+            UserRepository userRepository,
+            SecurityAuditLogger auditLogger,
+            @Autowired(required = false) ApplicationEventPublisher eventPublisher) {
         this.eventRepository = eventRepository;
         this.registrationRepository = registrationRepository;
         this.userRepository = userRepository;
         this.auditLogger = auditLogger;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -161,6 +176,51 @@ public class EventService {
     }
 
     /**
+     * Registers a user for an event with pessimistic write lock, capacity check, and domain event emission.
+     * Throws EventCapacityExhaustedException if capacity is reached.
+     *
+     * @param eventId event identifier
+     * @param userId user identifier
+     * @return saved Registration entity
+     */
+    @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
+    public Registration registerUserForEvent(@NonNull Long eventId, @NonNull Long userId) {
+        Event event = eventRepository.findByIdWithPessimisticLock(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with ID: " + eventId));
+
+        if (event.getStatus() != null && "CANCELLED".equalsIgnoreCase(event.getStatus().trim())) {
+            throw new IllegalStateException("Cannot register for a cancelled event");
+        }
+
+        long confirmedCount = registrationRepository.countByEventId(eventId);
+        if (event.getMaxCapacity() != null && event.getMaxCapacity() > 0 && confirmedCount >= event.getMaxCapacity()) {
+            throw new EventCapacityExhaustedException("Event capacity exhausted for event: " + event.getTitle());
+        }
+
+        if (registrationRepository.existsByUserIdAndEventId(userId, eventId)) {
+            throw new IllegalStateException("User " + userId + " is already registered for event: " + eventId);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        Registration registration = new Registration();
+        registration.setUser(user);
+        registration.setEvent(event);
+        registration.setRegistrationDate(LocalDateTime.now());
+        registration.setStatus("CONFIRMED");
+        registration.setCheckedIn(false);
+        registration.setTicketCode("TKT-" + event.getId() + "-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+
+        Registration saved = registrationRepository.save(registration);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new RegistrationCompletedEvent(saved));
+        }
+        logger.info("AUDIT: User {} registered for event {} (Ticket: {})", user.getUsername(), event.getId(), saved.getTicketCode());
+        return saved;
+    }
+
+    /**
      * Registers user interest in an event for analytics (status INTERESTED).
      * No-op if a registration already exists for the user-event pair.
      *
@@ -171,27 +231,13 @@ public class EventService {
     @Transactional
     @CircuitBreaker(name = "registrationService", fallbackMethod = "registrationFallback")
     public boolean registerStudent(@NonNull Long eventId, @NonNull Long userId) {
-        // Fast-path duplicate requests, then re-check after locking the event row.
-        if (registrationRepository.existsByUserIdAndEventId(userId, eventId)) {
+        try {
+            registerUserForEvent(eventId, userId);
+            return true;
+        } catch (EventNotFoundException | EventCapacityExhaustedException | IllegalStateException | IllegalArgumentException e) {
+            logger.warn("Registration rejected for event {} user {}: {}", eventId, userId, e.getMessage());
             return false;
         }
-
-        User user = userRepository.findById(userId).orElse(null);
-        // Serialize the user-event write to protect the unique interest record under concurrency.
-        Event event = eventRepository.findByIdForUpdate(eventId).orElse(null);
-
-        if (event == null || user == null || registrationRepository.existsByUserIdAndEventId(userId, eventId)) {
-            return false;
-        }
-
-        Registration registration = new Registration();
-        registration.setUser(user);
-        registration.setEvent(event);
-        registration.setRegistrationDate(LocalDateTime.now());
-        registration.setStatus("INTERESTED");
-
-        registrationRepository.save(registration);
-        return true;
     }
 
     /**

@@ -15,3 +15,9 @@ mvnwDebug
 mvnwDebug.cmd
 cookies.txt
 
+# Frontend redesign build cache & node_modules
+frontend-redesign/node_modules
+frontend-redesign/dist
+frontend-redesign/coverage
+frontend-redesign/test-results
+frontend-redesign/.playwright

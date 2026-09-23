@@ -40,6 +40,10 @@ public class Event {
     @Column(nullable = false)
     private String status = "PUBLISHED";
 
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @jakarta.persistence.JoinColumn(name = "club_id")
+    private Club club;
+
     @NotBlank(message = "Venue is required")
     private String venue;
 
@@ -193,6 +197,22 @@ public class Event {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Club getClub() {
+        return club;
+    }
+
+    public void setClub(Club club) {
+        this.club = club;
+    }
+
+    public Long getClubId() {
+        return club != null ? club.getId() : null;
+    }
+
+    public String getClubName() {
+        return club != null ? club.getName() : null;
     }
 
     @Override
