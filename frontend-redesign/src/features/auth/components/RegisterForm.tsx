@@ -67,6 +67,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           <Input
             id="reg-username"
             type="text"
+            autoComplete="username"
             placeholder="e.g. tejaswin"
             {...register('username')}
             aria-invalid={Boolean(errors.username)}
@@ -92,6 +93,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           <Input
             id="reg-email"
             type="email"
+            autoComplete="email"
             placeholder="student@klh.edu.in"
             {...register('email')}
             aria-invalid={Boolean(errors.email)}
@@ -172,6 +174,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           <Input
             id="reg-password"
             type="password"
+            autoComplete="new-password"
             placeholder="Min 8 characters"
             {...register('password')}
             aria-invalid={Boolean(errors.password)}

@@ -9,10 +9,48 @@ import type {
 } from '../features/organizer/types';
 import type { CampusEvent, CreateEventInput, KpiMetric } from '../types';
 
-// In-memory state storage initialized from mock data
-let localEventsStore: CampusEvent[] = [...INITIAL_EVENTS];
+const STORAGE_KEYS = {
+  USER: 'campusconnect_auth_user',
+  EVENTS: 'campusconnect_events',
+  ATTENDEES: 'campusconnect_attendees',
+} as const;
 
-let localCurrentUser: AuthUser | null = null;
+function safeGetStorage<T>(key: string, fallback: T): T {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return fallback;
+    const item = window.localStorage.getItem(key);
+    return item ? (JSON.parse(item) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeSetStorage<T>(key: string, value: T): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    }
+  } catch {
+    // Ignore storage quota or disabled storage errors
+  }
+}
+
+function safeRemoveStorage(key: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // Ignore
+  }
+}
+
+// In-memory state storage initialized from localStorage or mock data
+let localEventsStore: CampusEvent[] = safeGetStorage<CampusEvent[]>(STORAGE_KEYS.EVENTS, [
+  ...INITIAL_EVENTS,
+]);
+
+let localCurrentUser: AuthUser | null = safeGetStorage<AuthUser | null>(STORAGE_KEYS.USER, null);
 
 const mockClubs: Record<number, ClubDetail> = {
   1: {
@@ -41,7 +79,7 @@ const mockClubs: Record<number, ClubDetail> = {
   },
 };
 
-const localAttendeesStore: Record<number, Attendee[]> = {
+const initialAttendees: Record<number, Attendee[]> = {
   1: [
     {
       registrationId: 101,
@@ -85,8 +123,18 @@ const localAttendeesStore: Record<number, Attendee[]> = {
   ],
 };
 
+const localAttendeesStore: Record<number, Attendee[]> = safeGetStorage<Record<number, Attendee[]>>(
+  STORAGE_KEYS.ATTENDEES,
+  initialAttendees,
+);
+
 // Base API URL configuration
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+function isJsonResponse(res: Response): boolean {
+  const type = res.headers.get('content-type') || '';
+  return type.includes('application/json');
+}
 
 /**
  * Robust API client communicating with Spring Boot endpoints when available,
@@ -103,7 +151,7 @@ export const apiClient = {
         ? `${API_BASE_URL}/api/events?${query.toString()}`
         : `/api/events?${query.toString()}`;
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const data = await res.json();
         localEventsStore = data;
         return data;
@@ -133,7 +181,7 @@ export const apiClient = {
     try {
       const url = API_BASE_URL ? `${API_BASE_URL}/api/events/${id}` : `/api/events/${id}`;
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
     } catch {
@@ -158,7 +206,7 @@ export const apiClient = {
         method: 'POST',
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const data = await res.json();
         return { success: true, event: data, ticketCode: data.ticketCode };
       }
@@ -182,6 +230,7 @@ export const apiClient = {
       registeredCount: current.registeredCount + 1,
     };
     localEventsStore[index] = updated;
+    safeSetStorage(STORAGE_KEYS.EVENTS, localEventsStore);
 
     return { success: true, event: updated, ticketCode };
   },
@@ -195,9 +244,10 @@ export const apiClient = {
         body: JSON.stringify(input),
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const data = await res.json();
         localEventsStore = [data, ...localEventsStore];
+        safeSetStorage(STORAGE_KEYS.EVENTS, localEventsStore);
         return data;
       }
     } catch {
@@ -218,6 +268,7 @@ export const apiClient = {
     };
 
     localEventsStore = [newEvent, ...localEventsStore];
+    safeSetStorage(STORAGE_KEYS.EVENTS, localEventsStore);
     return newEvent;
   },
 
@@ -230,8 +281,9 @@ export const apiClient = {
         method: 'DELETE',
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         localEventsStore = localEventsStore.filter((e) => e.id !== id);
+        safeSetStorage(STORAGE_KEYS.EVENTS, localEventsStore);
         return { success: true, id };
       }
     } catch {
@@ -239,6 +291,7 @@ export const apiClient = {
     }
 
     localEventsStore = localEventsStore.filter((e) => e.id !== id);
+    safeSetStorage(STORAGE_KEYS.EVENTS, localEventsStore);
     return { success: true, id };
   },
 
@@ -246,7 +299,7 @@ export const apiClient = {
     try {
       const url = API_BASE_URL ? `${API_BASE_URL}/api/admin/stats` : '/api/admin/stats';
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
     } catch {
@@ -306,12 +359,13 @@ export const apiClient = {
         body: JSON.stringify(credentials),
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const user: AuthUser = await res.json();
         localCurrentUser = user;
+        safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
         return user;
       }
-      if (res.status === 401) {
+      if (res.status === 401 && isJsonResponse(res)) {
         const err = await res.json().catch(() => ({ message: 'Invalid credentials' }));
         throw new Error(err.message || 'Invalid credentials');
       }
@@ -333,6 +387,7 @@ export const apiClient = {
         rollNumber: 'KLH2024CS001',
         department: 'Computer Science',
       };
+      safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
       return localCurrentUser;
     }
     if (credentials.username === 'admin') {
@@ -344,6 +399,7 @@ export const apiClient = {
         rollNumber: 'ADM001',
         department: 'Administration',
       };
+      safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
       return localCurrentUser;
     }
     localCurrentUser = {
@@ -354,6 +410,7 @@ export const apiClient = {
       rollNumber: '2100030999',
       department: 'Engineering',
     };
+    safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
     return localCurrentUser;
   },
 
@@ -366,12 +423,13 @@ export const apiClient = {
         body: JSON.stringify(data),
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const user: AuthUser = await res.json();
         localCurrentUser = user;
+        safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
         return user;
       }
-      if (res.status === 400) {
+      if (res.status === 400 && isJsonResponse(res)) {
         const err = await res.json().catch(() => ({ message: 'Registration failed' }));
         throw new Error(err.message || 'Registration failed');
       }
@@ -390,6 +448,7 @@ export const apiClient = {
       department: data.department,
     };
     localCurrentUser = newUser;
+    safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
     return newUser;
   },
 
@@ -397,9 +456,10 @@ export const apiClient = {
     try {
       const url = API_BASE_URL ? `${API_BASE_URL}/api/auth/me` : '/api/auth/me';
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         const user: AuthUser = await res.json();
         localCurrentUser = user;
+        safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
         return user;
       }
     } catch {
@@ -419,6 +479,7 @@ export const apiClient = {
       // Ignore
     }
     localCurrentUser = null;
+    safeRemoveStorage(STORAGE_KEYS.USER);
     return { success: true };
   },
 
@@ -450,6 +511,7 @@ export const apiClient = {
         rollNumber: 'ADM001',
         department: 'Administration',
       };
+      safeSetStorage(STORAGE_KEYS.USER, localCurrentUser);
       return { success: true, token: 'mock-jwt-token-campusconnect-2026' };
     }
     throw new Error('Invalid admin credentials. Please enter authorized credentials.');
@@ -466,7 +528,7 @@ export const apiClient = {
         ? `${API_BASE_URL}/api/organizer/clubs/my-club`
         : '/api/organizer/clubs/my-club';
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
     } catch {
@@ -481,7 +543,7 @@ export const apiClient = {
     try {
       const url = API_BASE_URL ? `${API_BASE_URL}/api/organizer/events` : '/api/organizer/events';
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
     } catch {
@@ -519,7 +581,7 @@ export const apiClient = {
         body: JSON.stringify(input),
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
     } catch {
@@ -564,6 +626,7 @@ export const apiClient = {
       registrationLink: input.registrationLink,
       imageUrl: input.imageUrl,
     });
+    safeSetStorage(STORAGE_KEYS.EVENTS, localEventsStore);
 
     return newOrganizerEvent;
   },
@@ -574,7 +637,7 @@ export const apiClient = {
         ? `${API_BASE_URL}/api/organizer/events/${eventId}/attendees`
         : `/api/organizer/events/${eventId}/attendees`;
       const res = await fetch(url, { credentials: 'include' });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
     } catch {
@@ -615,13 +678,18 @@ export const apiClient = {
         body: JSON.stringify(data),
         credentials: 'include',
       });
-      if (res.ok) {
+      if (res.ok && isJsonResponse(res)) {
         return await res.json();
       }
-      const err = await res.json().catch(() => ({ message: 'Check-in failed' }));
-      throw new Error(err.message || 'Check-in failed');
+      if ((res.status === 400 || res.status === 404) && isJsonResponse(res)) {
+        const err = await res.json().catch(() => ({ message: 'Check-in failed' }));
+        throw new Error(err.message || 'Check-in failed');
+      }
     } catch (e) {
-      if (e instanceof Error && e.message !== 'Failed to fetch') {
+      if (
+        e instanceof Error &&
+        (e.message.includes('already checked in') || e.message === 'Check-in failed')
+      ) {
         throw e;
       }
     }
@@ -646,6 +714,7 @@ export const apiClient = {
 
     target.checkedIn = true;
     target.checkInTime = new Date().toISOString();
+    safeSetStorage(STORAGE_KEYS.ATTENDEES, localAttendeesStore);
 
     return {
       success: true,

@@ -19,6 +19,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -32,6 +33,22 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
     try {
       setErrorMessage(null);
       await login(data);
+      onSuccess?.();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage('Failed to sign in. Please verify your credentials.');
+      }
+    }
+  };
+
+  const handleQuickLogin = async (username: string, password: string) => {
+    try {
+      setErrorMessage(null);
+      setValue('username', username);
+      setValue('password', password);
+      await login({ username, password });
       onSuccess?.();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -120,6 +137,48 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
           'Sign In'
         )}
       </Button>
+
+      {/* 1-Click Demo Accounts Quick-Select */}
+      <div className="pt-3 border-t border-zinc-800/80 mt-3">
+        <p className="text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider text-center">
+          1-Click Demo Logins
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('admin', 'admin')}
+            disabled={isSubmitting}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/50 hover:bg-amber-500/10 text-zinc-300 hover:text-white transition-all focus:outline-none focus:ring-1 focus:ring-amber-500"
+          >
+            <span className="text-sm mb-0.5" aria-hidden="true">
+              👑
+            </span>
+            <span className="text-[11px] font-medium">Admin</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('organizer', 'organizer')}
+            disabled={isSubmitting}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-indigo-500/50 hover:bg-indigo-500/10 text-zinc-300 hover:text-white transition-all focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          >
+            <span className="text-sm mb-0.5" aria-hidden="true">
+              🎯
+            </span>
+            <span className="text-[11px] font-medium">Club Lead</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('tejaswin', 'password')}
+            disabled={isSubmitting}
+            className="flex flex-col items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 hover:bg-emerald-500/10 text-zinc-300 hover:text-white transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          >
+            <span className="text-sm mb-0.5" aria-hidden="true">
+              🎓
+            </span>
+            <span className="text-[11px] font-medium">Student</span>
+          </button>
+        </div>
+      </div>
 
       {onSwitchToRegister && (
         <p className="text-center text-xs text-zinc-400 pt-2">

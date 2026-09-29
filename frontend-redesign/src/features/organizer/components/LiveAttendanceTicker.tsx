@@ -95,6 +95,12 @@ export const LiveAttendanceTicker: React.FC<LiveAttendanceTickerProps> = ({
 
           const nextRetry = retryCountRef.current + 1;
           retryCountRef.current = nextRetry;
+
+          if (nextRetry > 2) {
+            setConnectionStatus('disconnected');
+            return;
+          }
+
           setConnectionStatus('reconnecting');
 
           const delay = Math.min(1000 * 2 ** (nextRetry - 1), 30000);

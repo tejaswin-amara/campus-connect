@@ -142,6 +142,12 @@ export function useEventTelemetry(
           const nextRetry = retryCountRef.current + 1;
           setRetryCount(nextRetry);
           retryCountRef.current = nextRetry;
+
+          if (nextRetry > 2) {
+            setConnectionStatus('disconnected');
+            return;
+          }
+
           setConnectionStatus('reconnecting');
 
           // Exponential backoff: 1s, 2s, 4s, 8s, up to 30s
