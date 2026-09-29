@@ -5,7 +5,8 @@
 **Enterprise-Grade Campus Event Aggregator & Student Registration Platform**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tejaswin-amara/campus-connect/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/tejaswin-amara/campus-connect/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-65%2F65%20passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](src/test/java/com/tejaswin/campus/service/EventServiceConcurrencyTest.java)
+[![Tests](https://img.shields.io/badge/tests-103%2F103%20passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](src/test/java/com/tejaswin/campus/service/EventServiceConcurrencyTest.java)
+[![Firebase](https://img.shields.io/badge/Firebase-Hosting%20Live-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://campusconnect-afd1e.web.app)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.4%20LTS-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](database/schema.sql)

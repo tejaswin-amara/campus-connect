@@ -82,5 +82,6 @@ coverage/
 **/coverage/
 .qodo/
 .tools/
+.firebase/
 hs_err_pid*
 replay_pid*

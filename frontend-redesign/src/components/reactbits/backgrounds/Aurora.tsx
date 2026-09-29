@@ -27,7 +27,12 @@ export const Aurora: React.FC<AuroraProps> = ({
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const ctx = canvas.getContext('2d');
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+      ctx = canvas.getContext('2d');
+    } catch {
+      return;
+    }
     if (!ctx) return;
 
     let animationFrameId: number | null = null;

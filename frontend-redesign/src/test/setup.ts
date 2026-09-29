@@ -36,3 +36,6 @@ Object.defineProperty(window, 'ResizeObserver', {
   writable: true,
   value: MockResizeObserver,
 });
+
+// Polyfill HTMLCanvasElement getContext for JSDOM test runner
+HTMLCanvasElement.prototype.getContext = () => null;

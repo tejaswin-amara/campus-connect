@@ -18,6 +18,7 @@ export default defineConfig({
           'vendor-motion': ['motion'],
           'vendor-query': ['@tanstack/react-query'],
           'vendor-icons': ['lucide-react'],
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
       },
     },

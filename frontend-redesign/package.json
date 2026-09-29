@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@tanstack/react-query": "^5.66.0",
     "clsx": "^2.1.1",
+    "firebase": "^12.19.0",
     "lucide-react": "^1.16.0",
     "motion": "^12.4.7",
     "react": "^19.0.0",

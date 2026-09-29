@@ -1,0 +1,108 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Defensive validation helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN')
+      );
+    }
+
+    // 1. Users profiles: Read by any authenticated user, write only by owner or admin
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && (
+        !request.resource.data.keys().hasAll(['role']) || 
+        request.resource.data.role == 'STUDENT' || 
+        isAdmin()
+      );
+      allow update: if (isOwner(userId) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+      )) || isAdmin();
+      allow delete: if isAdmin();
+
+      // Social squad connections: Owner or Admin read/write permissions
+      match /connections/{connectionId} {
+        allow read, write: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      }
+    }
+
+    // 2. Events catalog: Read by any authenticated user, write strictly by admin, except registration counters
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        isAuthenticated() && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registeredCount', 'waitlistCount'])
+      );
+    }
+
+    // 3. Registrations: Users can only view and modify their own registrations; Admins can manage all
+    match /registrations/{regId} {
+      allow read: if isAuthenticated() && (
+        resource == null || 
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    (request.resource.data.registeredAt == request.time || 
+                     request.resource.data.registeredAt is string || 
+                     request.resource.data.registeredAt != null) &&
+                    (
+                      // Case 1: The event is free
+                      (!exists(/databases/$(database)/documents/events/$(request.resource.data.eventId)) ||
+                       get(/databases/$(database)/documents/events/$(request.resource.data.eventId)).data.isPaid != true && 
+                       (request.resource.data.status == 'REGISTERED' || request.resource.data.status == 'WAITLISTED') &&
+                       (!request.resource.data.keys().hasAll(['paymentStatus']) || request.resource.data.paymentStatus != 'PAID')) ||
+                      
+                      // Case 2: The event is paid, standard user is joining the waitlist (free, no payment status)
+                      (exists(/databases/$(database)/documents/events/$(request.resource.data.eventId)) &&
+                       get(/databases/$(database)/documents/events/$(request.resource.data.eventId)).data.isPaid == true && 
+                       request.resource.data.status == 'WAITLISTED' &&
+                       (!request.resource.data.keys().hasAll(['paymentStatus']) || request.resource.data.paymentStatus != 'PAID')) ||
+
+                      // Case 3: Admin is performing the write (e.g. mock creations or manual overrides)
+                      isAdmin()
+                    );
+      allow update: if isAuthenticated() && 
+                    (resource.data.userId == request.auth.uid || isAdmin()) &&
+                    // Standard users cannot change their status to ATTENDED manually (only Admins/Kiosks can set or verify attendance)
+                    (request.resource.data.status != 'ATTENDED' || isAdmin() || resource.data.status == 'ATTENDED') &&
+                    // Standard users cannot update or inject paymentStatus to 'PAID' unless it was already 'PAID'
+                    (
+                      isAdmin() ||
+                      (!request.resource.data.keys().hasAll(['paymentStatus']) || 
+                       request.resource.data.paymentStatus != 'PAID' || 
+                       (resource.data.keys().hasAll(['paymentStatus']) && resource.data.paymentStatus == 'PAID'))
+                    );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 4. Feedback ratings: Authenticated reads, owned post creations
+    match /feedback/{feedbackId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid &&
+                    (request.resource.data.submittedAt == request.time || request.resource.data.submittedAt != null);
+    }
+
+    // Default lock down for any other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
