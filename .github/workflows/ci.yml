@@ -48,7 +48,11 @@ jobs:
           persist-credentials: false
 
       - name: Gitleaks Secret Scanner
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.6
+        run: |
+          wget https://github.com/gitleaks/gitleaks/releases/download/v8.21.0/gitleaks_8.21.0_linux_x64.tar.gz
+          echo "96041697241cfb1c1e085a21ec8c82ebfc363dc0b4d455d3156cfd7ad2463e26  gitleaks_8.21.0_linux_x64.tar.gz" | sha256sum -c -
+          tar -xvf gitleaks_8.21.0_linux_x64.tar.gz
+          ./gitleaks git --redact --no-banner
 
   sast:
     name: Static Application Security Testing

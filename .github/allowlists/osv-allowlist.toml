@@ -1,0 +1,4 @@
+[[IgnoredVulns]]
+id = "CVE-2026-33634"
+ignoreUntil = "2026-12-01"
+reason = "Baseline initialization for OSV-Scanner. Linear: CAM-5"

@@ -13,7 +13,7 @@
 
     <groupId>com.tejaswin</groupId>
     <artifactId>campus-event-manager</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>Campus Event Manager</name>
     <description>Campus Event Manager Web Application</description>
     <packaging>jar</packaging>
