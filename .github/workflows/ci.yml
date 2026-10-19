@@ -31,7 +31,7 @@ jobs:
         uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.1.0
 
       - name: zizmor
-        uses: advanced-security/zizmor-action@365df9f035d4b5177b9cd57330f8c3dfa6134420 # main
+        uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1
 
   secrets:
     name: Security & Secret Scan
@@ -70,15 +70,15 @@ jobs:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@f0f3afee809481da311ca3a6ff1ff51d81dbe349 # v3.26.11
+        uses: github/codeql-action/init@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # v3.26.11
         with:
           languages: java, javascript
 
       - name: Autobuild CodeQL
-        uses: github/codeql-action/autobuild@f0f3afee809481da311ca3a6ff1ff51d81dbe349 # v3.26.11
+        uses: github/codeql-action/autobuild@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # v3.26.11
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@f0f3afee809481da311ca3a6ff1ff51d81dbe349 # v3.26.11
+        uses: github/codeql-action/analyze@6db8d6351fd0be61f9ed8ebd12ccd35dcec51fea # v3.26.11
 
       - name: Semgrep
         uses: returntocorp/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1.1.0
@@ -237,9 +237,11 @@ jobs:
         uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
         with:
           dockerfile: Dockerfile
+          config: .github/allowlists/hadolint-allowlist.yaml
 
       - name: Checkov
         uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # master
         with:
           directory: .
           framework: dockerfile
+          baseline: .github/allowlists/.checkov.baseline
