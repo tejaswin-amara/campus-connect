@@ -18,16 +18,18 @@ We have adopted a modernized, decoupled Single-Page Application (SPA) architectu
 
 1. **Technology Stack**:
    * **Framework**: React 19 with strict TypeScript (`tsc --noEmit`).
-   * **Build Tooling**: Vite 6 for high-speed HMR development and optimized production asset chunking.
-   * **Design System**: OLED-dark token system (`#000000` / `#050505` surfaces, slate neutral scales) built with Tailwind CSS.
-   * **Animation & Visual Accents**: React Bits motion primitives (interactive spotlight cards, ambient aurora accents, magnetic controls) respecting `prefers-reduced-motion`.
+   * **Build Tooling**: Vite 6 for high-speed HMR development, optimized Rollup manualChunks splitting (`vendor-motion`, `vendor-gsap`, `vendor-lenis`, `vendor-forms`), keeping all chunks under 400 kB.
+   * **Design System**: OLED-dark token system (`#000000` / `#050505` surfaces, cyan/violet accents, glassmorphic cards) built with Tailwind CSS.
+   * **Motion & Smooth Scrolling**: GreenSock Animation Platform (GSAP 3.15) and Lenis 1.3 smooth scroll coordinated via a single unified `requestAnimationFrame` loop in `src/lib/motion.ts`, with `destroyMotion()` lifecycle hooks and `data-lenis-prevent` modal scroll containment.
+   * **Component Primitives**: Direct upstream TypeScript Tailwind components sourced from `DavidHDev/react-bits` (`SpotlightCard`, `Aurora`, `Magnet`, `BlurText`, `CountUp`, `DecryptedText`) with cached bounding rects and visibility bailing to prevent layout thrashing.
+   * **Interactive Campus Engine (SimCollege)**: 2:1 dimetric canvas rendering engine with dual-modality list/map view synchronization, roving tab index, and live spatial announcements.
    * **State & Data Caching**: TanStack Query (`@tanstack/react-query` v5) for client-side server-state caching, automatic cache invalidation, and debounced queries.
    * **Dual-Mode API Execution**: Resilient API client (`apiClient.ts`) communicating directly with Spring Boot REST endpoints (`/api/**`, `/login`) when available, while gracefully falling back to a deterministic in-memory store for standalone verification and offline preview.
 
 2. **Automated Verification Standards**:
-   * **Linter & Formatter**: Biome (`@biomejs/biome`) for sub-second formatting and linting.
-   * **Unit & Component Testing**: Vitest with `@testing-library/react` and JSDOM achieving comprehensive component test coverage.
-   * **End-to-End & Accessibility Gate**: Playwright driving automated browser tests paired with `@axe-core/playwright` ensuring 0 WCAG 2.1 AA violations.
+   * **Linter & Formatter**: Biome (`@biomejs/biome`) for sub-second formatting and linting (119 files verified clean).
+   * **Unit & Component Testing**: Vitest with `@testing-library/react` and JSDOM achieving 100% pass across 25 suites and 89 tests.
+   * **End-to-End & Accessibility Gate**: Playwright driving automated browser tests paired with `@axe-core/playwright` ensuring 0 WCAG 2.1/2.2 AA violations across all 17 E2E tests, including heap leak audits (0 detached canvas nodes).
 
 3. **Packaging & Delivery Integration**:
    * **Multi-stage OCI Containerization**: 3-stage minimal footprint Docker build (Node 20 Alpine builder -> Temurin 21 Maven packager -> Temurin 21 JRE Alpine runtime under unprivileged UID 10001).

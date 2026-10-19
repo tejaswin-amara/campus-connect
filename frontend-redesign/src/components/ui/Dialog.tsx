@@ -78,6 +78,7 @@ export const Dialog: React.FC<DialogProps> = ({
         aria-labelledby={title ? 'modal-dialog-title' : undefined}
         aria-describedby={ariaDescribedBy}
         tabIndex={-1}
+        data-lenis-prevent
         className={cn(
           'm-0 border-0 p-0 bg-transparent text-inherit block',
           'relative z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-strong bg-surface-raised/95 p-6 shadow-2xl backdrop-blur-heavy focus:outline-none',

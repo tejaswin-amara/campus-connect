@@ -15,7 +15,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
-          'vendor-motion': ['motion'],
+          'vendor-motion': ['motion', 'motion/react'],
+          'vendor-gsap': ['gsap'],
+          'vendor-lenis': ['lenis'],
           'vendor-query': ['@tanstack/react-query'],
           'vendor-icons': ['lucide-react'],
           'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],

@@ -110,9 +110,13 @@ export const TicketPassModal: React.FC<TicketPassModalProps> = ({ isOpen, onClos
       ref={modalRef}
       aria-modal="true"
       aria-labelledby="ticket-modal-title"
+      data-lenis-prevent
       className="fixed inset-0 m-0 p-4 border-0 bg-transparent text-inherit z-50 flex h-full w-full items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-subtle bg-surface-base shadow-glow-cyan">
+      <div
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-border-subtle bg-surface-base shadow-glow-cyan"
+        data-lenis-prevent
+      >
         <SpotlightCard spotlightColor="rgba(0, 240, 255, 0.2)" className="p-6 relative text-white">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border-subtle pb-4">
@@ -229,7 +233,7 @@ export const TicketPassModal: React.FC<TicketPassModalProps> = ({ isOpen, onClos
 
           {/* Action Footer */}
           <div className="mt-6 flex items-center gap-3 pt-4 border-t border-border-subtle">
-            <Magnet maxDelta={6} className="flex-1">
+            <Magnet maxOffset={6} className="flex-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -241,7 +245,7 @@ export const TicketPassModal: React.FC<TicketPassModalProps> = ({ isOpen, onClos
               </Button>
             </Magnet>
 
-            <Magnet maxDelta={6} className="flex-1">
+            <Magnet maxOffset={6} className="flex-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -253,7 +257,7 @@ export const TicketPassModal: React.FC<TicketPassModalProps> = ({ isOpen, onClos
               </Button>
             </Magnet>
 
-            <Magnet maxDelta={6} className="flex-1">
+            <Magnet maxOffset={6} className="flex-1">
               <Button variant="primary" size="sm" className="w-full text-xs" onClick={onClose}>
                 Done
               </Button>

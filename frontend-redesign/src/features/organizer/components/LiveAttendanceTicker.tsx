@@ -173,7 +173,7 @@ export const LiveAttendanceTicker: React.FC<LiveAttendanceTickerProps> = ({
               Live Stream Scans
             </span>
             <div className="text-lg font-bold font-mono text-emerald-400 tabular-nums">
-              <DecryptedText text={totalLiveScans} maxIterations={5} />
+              <DecryptedText text={String(totalLiveScans)} maxIterations={5} />
             </div>
           </div>
         </div>

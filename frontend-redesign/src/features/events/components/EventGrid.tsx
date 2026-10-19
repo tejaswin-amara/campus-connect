@@ -27,7 +27,7 @@ export const EventGrid: React.FC<EventGridProps> = ({
   // 1 & 2: Loading State with Skeleton Slices enforcing fixed aspect ratios
   if (isLoading) {
     return (
-      <div
+      <section
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         aria-busy="true"
         aria-label="Loading campus events"
@@ -53,7 +53,7 @@ export const EventGrid: React.FC<EventGridProps> = ({
             </div>
           </div>
         ))}
-      </div>
+      </section>
     );
   }
 

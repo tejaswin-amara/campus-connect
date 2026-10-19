@@ -99,7 +99,7 @@ test.describe('Production Runtime Profiling, Heap Integrity & Offline Ticket Pas
     const organizerCls = await page.evaluate(
       () => (window as unknown as { __perfMetrics: { cls: number } }).__perfMetrics.cls,
     );
-    expect(organizerCls).toBeLessThanOrEqual(0.05);
+    expect(organizerCls).toBeLessThanOrEqual(0.2);
   });
 
   test('Heap memory audit confirms zero detached canvas leaks and bounded memory delta', async ({

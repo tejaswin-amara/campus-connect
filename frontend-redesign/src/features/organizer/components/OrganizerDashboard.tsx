@@ -65,12 +65,12 @@ export const OrganizerDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <Skeleton className="h-40 w-full rounded-3xl" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-28 rounded-2xl" />
-          <Skeleton className="h-28 rounded-2xl" />
-          <Skeleton className="h-28 rounded-2xl" />
+      <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <Skeleton className="h-56 w-full rounded-3xl" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          <Skeleton className="h-36 rounded-2xl" />
+          <Skeleton className="h-36 rounded-2xl" />
+          <Skeleton className="h-36 rounded-2xl" />
         </div>
         <Skeleton className="h-96 rounded-2xl" />
       </div>
@@ -165,7 +165,7 @@ export const OrganizerDashboard: React.FC = () => {
             <Calendar className="h-4 w-4 text-indigo-400" />
           </div>
           <div className="text-3xl font-extrabold text-white">
-            <DecryptedText text={totalEvents} maxIterations={8} />
+            <DecryptedText text={String(totalEvents)} maxIterations={8} />
           </div>
           <p className="text-[11px] text-zinc-400 mt-1">
             {events.filter((e) => e.status === 'PUBLISHED').length} published,{' '}
@@ -182,7 +182,7 @@ export const OrganizerDashboard: React.FC = () => {
             <Users className="h-4 w-4 text-cyan-400" />
           </div>
           <div className="text-3xl font-extrabold text-white">
-            <DecryptedText text={totalRsvps} maxIterations={8} />
+            <DecryptedText text={String(totalRsvps)} maxIterations={8} />
           </div>
           <p className="text-[11px] text-zinc-400 mt-1">
             Aggregate student RSVPs across all club programs

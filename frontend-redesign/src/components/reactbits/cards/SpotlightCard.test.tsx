@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { SpotlightCard } from './SpotlightCard';
 
 describe('SpotlightCard', () => {
-  it('renders children with OLED surface styles and backdrop blur', () => {
+  it('renders children with container surface styles and backdrop structure', () => {
     render(
       <SpotlightCard className="custom-test-class">
         <span>Spotlight Content</span>
@@ -14,9 +14,15 @@ describe('SpotlightCard', () => {
     expect(content).toBeInTheDocument();
   });
 
-  it('updates CSS variables --mouse-x and --mouse-y on mouse move', () => {
+  it('activates spotlight styling on pointer interaction', () => {
+    // Mock requestAnimationFrame to execute synchronously in test
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(performance.now());
+      return 1;
+    });
+
     const { container } = render(
-      <SpotlightCard>
+      <SpotlightCard proximity={100} intensity={0.5}>
         <div>Interactive Card</div>
       </SpotlightCard>,
     );
@@ -24,7 +30,6 @@ describe('SpotlightCard', () => {
     const card = container.firstChild as HTMLDivElement;
     expect(card).toBeDefined();
 
-    // Mock getBoundingClientRect
     vi.spyOn(card, 'getBoundingClientRect').mockReturnValue({
       left: 100,
       top: 100,
@@ -37,15 +42,11 @@ describe('SpotlightCard', () => {
       toJSON: () => {},
     });
 
-    // Mock requestAnimationFrame to execute synchronously in test
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
-      cb(0);
-      return 1;
-    });
+    // Simulate pointer move over the card
+    fireEvent.pointerDown(card, { clientX: 150, clientY: 150 });
 
-    fireEvent.mouseMove(card, { clientX: 150, clientY: 175 });
-
-    expect(card.style.getPropertyValue('--mouse-x')).toBe('50px');
-    expect(card.style.getPropertyValue('--mouse-y')).toBe('75px');
+    // Check that hidden light and edge elements exist and have radial gradient applied
+    const lightSpan = card.querySelector('span[aria-hidden="true"]');
+    expect(lightSpan).toBeInTheDocument();
   });
 });

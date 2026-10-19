@@ -147,6 +147,7 @@ export const EventDetailDrawer: React.FC<EventDetailDrawerProps> = ({ event, onC
         aria-modal="true"
         aria-labelledby="drawer-title"
         tabIndex={-1}
+        data-lenis-prevent
         className="m-0 border-0 p-0 bg-transparent text-inherit relative z-50 flex h-full w-full max-w-2xl flex-col border-l border-border-subtle bg-surface-base shadow-2xl backdrop-blur-heavy focus:outline-none"
       >
         {/* Drawer Header */}
@@ -173,7 +174,7 @@ export const EventDetailDrawer: React.FC<EventDetailDrawerProps> = ({ event, onC
         </div>
 
         {/* Drawer Body Content */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8" data-lenis-prevent>
           {/* Cover Media Header */}
           <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border-subtle bg-surface-raised shadow-lg">
             {event.imageUrl ? (

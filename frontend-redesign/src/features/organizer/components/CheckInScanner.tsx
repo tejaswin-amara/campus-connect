@@ -255,7 +255,7 @@ export const CheckInScanner: React.FC<CheckInScannerProps> = ({
                   Clear
                 </Button>
 
-                <Magnet maxDelta={6}>
+                <Magnet maxOffset={6}>
                   <Button
                     type="submit"
                     variant="primary"

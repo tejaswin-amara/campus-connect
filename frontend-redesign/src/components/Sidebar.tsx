@@ -1,6 +1,7 @@
 import {
   Building2,
   Calendar,
+  Compass,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -12,7 +13,7 @@ import type React from 'react';
 import { useAuth } from '../features/auth/context/AuthContext';
 import { cn } from '../lib/utils';
 
-export type WorkspaceView = 'student' | 'organizer' | 'admin';
+export type WorkspaceView = 'student' | 'organizer' | 'admin' | 'simcollege';
 
 export interface SidebarProps {
   currentView: WorkspaceView;
@@ -41,6 +42,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleNav = (targetView: WorkspaceView) => {
     if (targetView === 'student') {
       onViewChange('student');
+      onClose();
+      return;
+    }
+
+    if (targetView === 'simcollege') {
+      onViewChange('simcollege');
       onClose();
       return;
     }
@@ -131,6 +138,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             />
             <span>Discover Events</span>
+          </button>
+
+          {/* SimCollege Interactive Map */}
+          <button
+            type="button"
+            onClick={() => handleNav('simcollege')}
+            className={cn(
+              'flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200',
+              currentView === 'simcollege'
+                ? 'bg-surface-raised text-white border border-border-strong shadow-glow-cyan/20'
+                : 'text-slate-400 hover:bg-surface-overlay hover:text-white',
+            )}
+          >
+            <Compass
+              className={cn(
+                'h-4 w-4',
+                currentView === 'simcollege' ? 'text-brand-primary' : 'text-slate-400',
+              )}
+            />
+            <span>SimCollege Map</span>
           </button>
 
           {/* Club Organizer Studio */}

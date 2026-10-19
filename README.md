@@ -5,8 +5,13 @@
 **Enterprise-Grade Campus Event Aggregator & Student Registration Platform**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/tejaswin-amara/campus-connect/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/tejaswin-amara/campus-connect/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-103%2F103%20passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](src/test/java/com/tejaswin/campus/service/EventServiceConcurrencyTest.java)
-[![Firebase](https://img.shields.io/badge/Firebase-Hosting%20Live-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://campusconnect-afd1e.web.app)
+[![Backend Tests](https://img.shields.io/badge/backend-103%2F103%20passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white)](src/test/java/com/tejaswin/campus/service/EventServiceConcurrencyTest.java)
+[![Vitest](https://img.shields.io/badge/vitest-89%2F89%20passing-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](frontend-redesign)
+[![Playwright](https://img.shields.io/badge/playwright-17%2F17%20passing-brightgreen?style=for-the-badge&logo=playwright&logoColor=white)](frontend-redesign)
+[![A11y](https://img.shields.io/badge/axe-WCAG%202.2%20AA%200%20violations-00F0FF?style=for-the-badge&logo=w3c&logoColor=white)](frontend-redesign)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](frontend-redesign)
+[![React Bits](https://img.shields.io/badge/React%20Bits-Cyber--OLED-FF007F?style=for-the-badge)](https://github.com/DavidHDev/react-bits)
+[![GSAP + Lenis](https://img.shields.io/badge/GSAP%20%2B%20Lenis-Unified%20RAF-00F0FF?style=for-the-badge)](https://greensock.com)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.4%20LTS-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](database/schema.sql)
@@ -16,7 +21,7 @@
 
 <br />
 
-*ACID-safe registration with pessimistic locking · BCNF-normalized schema · 51.7% query cost reduction · Transactional outbox pattern · Dark glassmorphism UI*
+*Cyber-OLED Deep Space Redesign · React Bits Components · GSAP & Lenis Smooth Scroll · SimCollege 2:1 Dimetric Engine · ACID-Safe Concurrency with Pessimistic Locking · BCNF-Normalized Schema · 51.7% Query Cost Reduction*
 
 <br />
 
@@ -193,14 +198,24 @@ export MYSQLUSER=campus_app MYSQLPASSWORD=campus_app_password
 ./mvnw test
 ```
 
-### Frontend Redesign (React + Vite)
+### 🌐 Production Frontend (React 19 + Vite 6 + React Bits + GSAP + Lenis)
 
-If you're evaluating the experimental `frontend-redesign` directory:
+Run the ground-up Cyber-OLED frontend application:
 
 ```bash
 cd frontend-redesign
 npm install
-npm run build
+npm run dev
+# Live interactive app running at http://localhost:5173/
+```
+
+To run the full-spectrum verification and quality audit suite:
+```bash
+npm run check              # Biome format & lint check (119 files, 0 errors)
+npx tsc --noEmit           # Strict TypeScript compilation pass (0 errors)
+npm test                   # Vitest unit test suite (25 suites, 89/89 passing)
+npx playwright test        # Playwright E2E & Axe accessibility audit (17/17 passing)
+npm run build              # Production build with sub-400kB manual chunks
 ```
 
 ### 4. Launch

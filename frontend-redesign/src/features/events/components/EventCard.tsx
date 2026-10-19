@@ -17,7 +17,6 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
 
   return (
     <SpotlightCard
-      as="article"
       aria-labelledby={`event-title-${event.id}`}
       className={`transition-all duration-300 hover:-translate-y-1 ${
         isFull ? 'ring-1 ring-status-danger/40' : ''
@@ -129,7 +128,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
 
         {/* Action Button Strip */}
         <div className="mt-auto pt-4 flex items-center justify-between border-t border-border-subtle/50">
-          <Magnet maxDelta={6}>
+          <Magnet maxOffset={6}>
             <button
               type="button"
               onClick={() => onSelect(event)}

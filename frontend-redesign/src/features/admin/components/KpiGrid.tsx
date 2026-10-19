@@ -77,10 +77,10 @@ export const KpiGrid: React.FC = () => {
               <div className="flex items-baseline gap-1 text-3xl font-extrabold text-white tracking-tight">
                 {metric.prefix && <span className="text-xl text-slate-400">{metric.prefix}</span>}
                 <DecryptedText
-                  text={metric.value}
+                  text={String(metric.value)}
                   speed={35}
                   maxIterations={8}
-                  animateOnHover
+                  animateOn="hover"
                   className="text-white"
                 />
                 {metric.suffix && (

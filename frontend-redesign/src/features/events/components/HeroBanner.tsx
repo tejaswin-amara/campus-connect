@@ -42,7 +42,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border-subtle bg-surface-base/80 p-6 sm:p-10 lg:p-12 shadow-2xl backdrop-blur-glass">
       {/* Deep GPU-accelerated ambient Aurora wave background */}
-      <Aurora />
+      <Aurora
+        mouseInteraction={false}
+        className="absolute inset-0 -z-0 opacity-40 pointer-events-none"
+      />
 
       <div className="relative z-10 max-w-3xl space-y-6">
         {/* Release Pill Badge */}
@@ -51,7 +54,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           <span className="tracking-wide">CAMPUS CONNECT &bull; AUTONOMOUS CALENDAR 2026</span>
         </div>
 
-        {/* Headline rendered via BlurText */}
+        {/* Headline rendered via BlurText as h1 */}
         <div className="space-y-2">
           <BlurText
             text="Discover & Connect with Campus Intelligence"

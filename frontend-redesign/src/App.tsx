@@ -3,6 +3,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { Layout } from './components/Layout';
 import type { WorkspaceView } from './components/Sidebar';
+import { SmoothScrollProvider } from './components/SmoothScrollProvider';
 import { EventTable } from './features/admin/components/EventTable';
 import { KpiGrid } from './features/admin/components/KpiGrid';
 import { RoleGuard } from './features/auth/components/RoleGuard';
@@ -10,6 +11,7 @@ import { AuthProvider } from './features/auth/context/AuthContext';
 import { EventList } from './features/events/EventList';
 import { useEvents } from './features/events/api/useEvents';
 import { OrganizerDashboard } from './features/organizer/components/OrganizerDashboard';
+import { SimCollegeContainer } from './features/simcollege';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +29,8 @@ const AppContent: React.FC = () => {
   return (
     <Layout currentView={currentView} onViewChange={setCurrentView}>
       {currentView === 'student' && <EventList />}
+
+      {currentView === 'simcollege' && <SimCollegeContainer />}
 
       {currentView === 'organizer' && (
         <RoleGuard requiredRole="ROLE_ORGANIZER">
@@ -61,7 +65,9 @@ export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
+        <SmoothScrollProvider>
+          <AppContent />
+        </SmoothScrollProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

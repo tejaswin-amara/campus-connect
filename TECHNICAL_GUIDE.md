@@ -143,9 +143,52 @@ A local environment with MySQL 8.0 may be incompatible with Flyway 12. Do not re
 | Operational change | `application*.properties`, Docker, CI, operations guide | Health/metrics evidence, secret review, runbook update |
 | API change | Controller and OpenAPI configuration | Route contract, validation/error behavior, smoke or controller test |
 
+## 9. Modern Cyber-OLED Frontend (`frontend-redesign`)
+
+The frontend is a decoupled Single-Page Application (SPA) designed with a **Cyber-OLED / Deep Space Academic** aesthetic:
+
+```mermaid
+flowchart TD
+    App["App.tsx & SmoothScrollProvider"] --> Motion["Unified RAF Ticker (motion.ts)"]
+    Motion --> Lenis["Lenis 1.3 Smooth Scroll"]
+    Motion --> GSAP["GSAP 3.15 ScrollTrigger"]
+    
+    App --> Shell["Layout & Sidebar Navigation"]
+    Shell --> Catalogue["Student Catalogue (HeroBanner + EventGrid)"]
+    Shell --> SimCollege["SimCollege 2:1 Dimetric Campus Map"]
+    Shell --> AdminStudio["Admin & Organizer Control Plane"]
+
+    Catalogue --> RB["React Bits Components (SpotlightCard, Aurora, Magnet, BlurText)"]
+    SimCollege --> Engine["Dual-Modality Isometric Engine (Canvas + Synchronized List)"]
+    AdminStudio --> RBAC["RoleGuard, Telemetry & QR Check-In"]
+```
+
+### Component Catalog & Upstream Sourcing
+All interactive motion primitives are sourced directly from [`DavidHDev/react-bits`](https://github.com/DavidHDev/react-bits):
+- **`SpotlightCard`**: Radial illumination and edge glow with cached bounding client rects.
+- **`Aurora`**: GPU-accelerated procedural canvas wave with reduced-motion static frame fallback.
+- **`Magnet`**: Spring-physics pointer attraction for primary CTA buttons.
+- **`BlurText`**: Progressive keyframe filter blur with preserved contrast ($\ge 18.5:1$) for WCAG AA compliance.
+- **`CountUp`**: Live attendance and seat ticker with `.sr-only` screen reader separation.
+- **`DecryptedText`**: Matrix glyph scramble effect with accessible text wrappers.
+
+### Quality Verification Pipeline
+```bash
+cd frontend-redesign
+npm run check              # Biome format & lint check (119 files, 0 errors)
+npx tsc --noEmit           # Strict TypeScript compilation pass (0 errors)
+npm test                   # Vitest unit test suite (25 suites, 89/89 passing)
+npx playwright test        # Playwright E2E & Axe accessibility audit (17/17 passing)
+npm run build              # Production build with sub-400kB manual chunks
+```
+
 ## References
 
 [1]: https://spring.io/projects/spring-boot "Spring Boot project"
 [2]: https://docs.spring.io/spring-security/reference/ "Spring Security reference"
 [3]: https://documentation.red-gate.com/flyway/reference "Flyway reference"
 [4]: https://owasp.org/API-Security/editions/2023/en/0x00-header/ "OWASP API Security Top 10"
+[5]: https://github.com/DavidHDev/react-bits "React Bits component library"
+[6]: https://github.com/greensock/GSAP "GreenSock Animation Platform"
+[7]: https://github.com/darkroomengineering/lenis "Lenis smooth scroll"
+
