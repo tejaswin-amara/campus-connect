@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: campus-connect
+    env: docker
+    plan: starter
+    autoDeploy: false
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        sync: false
