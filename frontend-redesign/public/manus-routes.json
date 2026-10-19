@@ -1,0 +1,1 @@
+{"routes":[{"path":"/","title":"Student Event Catalogue"},{"path":"/admin","title":"Admin Control Center"},{"path":"/login","title":"CampusConnect Admin Login"},{"path":"/saved","title":"Saved Events"},{"path":"/profile","title":"Student Profile"},{"path":"/404","title":"Page or Event Not Found"}]}

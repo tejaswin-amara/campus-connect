@@ -24,9 +24,9 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ open, onClose,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<AdminLoginFormData>({
-    resolver: zodResolver(adminLoginSchema),
-    defaultValues: {
-      username: 'admin',
+      resolver: zodResolver(adminLoginSchema),
+      defaultValues: {
+      username: '',
       password: '',
     },
   });
@@ -34,7 +34,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ open, onClose,
   useEffect(() => {
     if (open) {
       setError(null);
-      reset({ username: 'admin', password: '' });
+      reset({ username: '', password: '' });
     }
   }, [open, reset]);
 
@@ -59,7 +59,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ open, onClose,
 
   const handleClose = () => {
     setError(null);
-    reset({ username: 'admin', password: '' });
+    reset({ username: '', password: '' });
     onClose();
   };
 
