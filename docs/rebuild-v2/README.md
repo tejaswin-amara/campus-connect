@@ -32,6 +32,8 @@
 - [User documentation plan](USER_DOCUMENTATION_PLAN.md) — release-matched student/organizer/admin/operator guides.
 
 ## Google Jules delivery
+- [Authoritative multi-phase execution pack](JULES_MULTI_PHASE_EXECUTION_PACK.md) — programme controller, J00–J17 task prompts, wave gates, integration prompts and operating rules.
+- [Live session control board](SESSION_CONTROL_BOARD.md) — active session ownership, gates, blockers and merge evidence.
 - [Execution plan](JULES_EXECUTION_PLAN.md) — session dependencies.
 - [Parallel workflow](PARALLEL_JULES_WORKFLOW.md) — safe concurrency and merge ownership.
 - [Copy/paste session prompts](JULES_PROMPTS.md) — J00–J17 instructions.
