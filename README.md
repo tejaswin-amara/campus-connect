@@ -404,3 +404,10 @@ Built and maintained by **Tejaswin Amara** as the `25CS1302E` coursework deliver
 <sub>Built with rigor and care for excellence in database systems engineering.</sub>
 
 </div>
+
+
+---
+
+## CampusConnect 2.0 Greenfield Rebuild
+
+The next-generation rebuild is being planned independently from the existing implementation. See the [CampusConnect 2.0 rebuild documentation](docs/rebuild-v2/README.md), the [Jules execution plan](docs/rebuild-v2/JULES_EXECUTION_PLAN.md), and the repository-wide [Jules engineering contract](AGENTS.md). The existing implementation and its documentation are preserved for audit and selective reuse.
