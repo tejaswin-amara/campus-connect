@@ -25,6 +25,12 @@
 - [Operations](OPERATIONS.md) — environments, release, recovery and incident response.
 - [Legacy audit template](LEGACY_AUDIT_TEMPLATE.md) — J00 evidence capture.
 
+- [Engineering standards](ENGINEERING_STANDARDS.md) — code, dependency, database and frontend rules.
+- [Pipeline mapping](PIPELINE_MAPPING.md) — Engineering Pipeline v3.1.0 applicability.
+- [Release checklist](RELEASE_CHECKLIST.md) — evidence-based production readiness.
+- [Open questions](OPEN_QUESTIONS.md) — college policy and technical decisions requiring owner input.
+- [User documentation plan](USER_DOCUMENTATION_PLAN.md) — release-matched student/organizer/admin/operator guides.
+
 ## Google Jules delivery
 - [Execution plan](JULES_EXECUTION_PLAN.md) — session dependencies.
 - [Parallel workflow](PARALLEL_JULES_WORKFLOW.md) — safe concurrency and merge ownership.
